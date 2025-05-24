@@ -20,11 +20,9 @@
 </header>
 
 <main>
-  <!-- Akten-Sektion -->
+  <!-- Akten -->
   <section id="akten" class="content-section">
     <h2>Akten</h2>
-
-    <!-- Filter -->
     <div class="filter-container">
       <input type="text" id="akten-filter-name" placeholder="Nach Name filtern..." />
       <select id="akten-filter-crime">
@@ -35,22 +33,18 @@
         <option value="Schwere Kriminalität">Schwere Kriminalität</option>
       </select>
     </div>
-
-    <!-- Liste der Akten -->
     <ul id="akten-list" class="item-list"></ul>
-
-    <!-- Button zum neuen Eintrag -->
     <button class="btn-add" data-list="akten">Akte erstellen</button>
   </section>
 
-  <!-- Fahndung-Sektion -->
+  <!-- Fahndung -->
   <section id="fahndung" class="content-section" style="display:none;">
     <h2>Fahndung</h2>
     <ul id="fahndung-list" class="item-list"></ul>
     <button class="btn-add" data-list="fahndung">Fahndung erstellen</button>
   </section>
 
-  <!-- Straftaten-Sektion -->
+  <!-- Straftaten -->
   <section id="straftaten" class="content-section" style="display:none;">
     <h2>Straftaten</h2>
     <ul id="straftaten-list" class="item-list"></ul>
@@ -61,24 +55,21 @@
 <!-- Modal -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h3 id="modal-title"></h3>
+    <h3 id="modal-title">Neue Akte erstellen</h3>
 
-    <!-- Kategorie Auswahl nur beim Akten erstellen -->
-    <select id="crimeTypeSelect" style="margin-bottom: 15px;">
+    <label for="crimeTypeSelect" style="font-weight:600;">Kategorie:</label>
+    <select id="crimeTypeSelect" style="margin-bottom: 15px; padding: 8px; border-radius: 8px; border: 1.5px solid #ccc; width: 100%;">
       <option value="Vermerk">Vermerk</option>
       <option value="Leichte Kriminalität">Leichte Kriminalität</option>
       <option value="Mittlere Kriminalität">Mittlere Kriminalität</option>
       <option value="Schwere Kriminalität">Schwere Kriminalität</option>
     </select>
 
-    <!-- Das Formular wird dynamisch hier aufgebaut -->
-    <form id="akten-form">
-      <!-- Felder werden dynamisch generiert -->
-    </form>
+    <form id="akten-form"></form>
 
     <div class="modal-buttons">
-      <button id="modal-save-btn">Speichern</button>
-      <button id="modal-cancel-btn">Abbrechen</button>
+      <button id="modal-save-btn" class="btn-primary">Speichern</button>
+      <button id="modal-cancel-btn" class="btn-secondary">Abbrechen</button>
     </div>
   </div>
 </div>
