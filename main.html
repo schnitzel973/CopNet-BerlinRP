@@ -3,37 +3,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CopNet-BerlinRP</title>
+  <title>CopNet-BerlinRP - ERLC Info Tool</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="container">
 
-<header>
-  <h1>CopNet-BerlinRP Loadout System</h1>
-</header>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">CopNet BerlinRP</div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="#" data-section="dashboard" class="active"><span>🏠</span> Dashboard</a></li>
+          <li><a href="#" data-section="fahndung"><span>🔍</span> Fahndung</a></li>
+          <li><a href="#" data-section="akten"><span>📁</span> Akten</a></li>
+          <li><a href="#" data-section="straftaten"><span>⚖️</span> Straftaten</a></li>
+          <li><a href="#" data-section="loadouts"><span>🧰</span> Loadouts</a></li>
+          <li><a href="#" data-section="fahrzeuge"><span>🚓</span> Fahrzeuge</a></li>
+          <li><a href="#" data-section="ausruestung"><span>🎒</span> Ausrüstung</a></li>
+          <li><a href="#" data-section="berichte"><span>📊</span> Berichte</a></li>
+          <li><a href="#" data-section="settings"><span>⚙️</span> Einstellungen</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-<main>
-  <section id="loadout-section">
-    <h2>Dein Loadout</h2>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1 id="page-title">Dashboard</h1>
+      </header>
 
-    <label for="loadout-name">Loadout Name:</label>
-    <input type="text" id="loadout-name" placeholder="Name eingeben" />
+      <section id="dashboard" class="content-section active">
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3>Fahndungen</h3>
+            <p>Aktuelle offene Fahndungen.</p>
+            <button id="open-fahndung-section">Jetzt ansehen</button>
+          </div>
+          <div class="card">
+            <h3>Akten</h3>
+            <p>Verwaltung und Übersicht von Akten.</p>
+            <button id="open-akten-section">Details</button>
+          </div>
+          <div class="card">
+            <h3>Straftaten</h3>
+            <p>Erfasste Straftaten und Kategorien.</p>
+            <button id="open-straftaten-section">Mehr erfahren</button>
+          </div>
+          <div class="card">
+            <h3>Loadouts</h3>
+            <p>Deine Ausrüstung und Waffen-Loadouts.</p>
+            <button id="open-loadouts-section">Loadouts verwalten</button>
+          </div>
+        </div>
+      </section>
 
-    <label for="loadout-weapons">Wähle Waffen:</label>
-    <select id="loadout-weapons" multiple size="4">
-      <option value="pistole">Pistole</option>
-      <option value="gewehr">Gewehr</option>
-      <option value="schrotflinte">Schrotflinte</option>
-      <option value="sniper">Sniper</option>
-    </select>
+      <section id="fahndung" class="content-section">
+        <h2>Fahndung</h2>
+        <p>Fahndungslisten anzeigen, neue Fahndungen hinzufügen.</p>
 
-    <button id="save-loadout-btn">Loadout speichern</button>
+        <form id="fahndung-form">
+          <label for="fahndung-name">Name der gesuchten Person:</label>
+          <input type="text" id="fahndung-name" placeholder="Name eingeben" required />
 
-    <div id="loadout-list"></div>
-  </section>
-</main>
+          <label for="fahndung-beschreibung">Beschreibung:</label>
+          <textarea id="fahndung-beschreibung" rows="3" placeholder="Beschreibung eingeben"></textarea>
 
-<script src="app.js"></script>
+          <button type="submit">Fahndung hinzufügen</button>
+        </form>
 
+        <div id="fahndung-list" class="list-container"></div>
+      </section>
+
+      <section id="akten" class="content-section">
+        <h2>Akten</h2>
+        <p>Aktenübersicht und neue Akten erstellen.</p>
+
+        <form id="akten-form">
+          <label for="akten-titel">Titel der Akte:</label>
+          <input type="text" id="akten-titel" placeholder="Titel eingeben" required />
+
+          <label for="akten-inhalt">Inhalt:</label>
+          <textarea id="akten-inhalt" rows="4" placeholder="Inhalt eingeben"></textarea>
+
+          <button type="submit">Akte speichern</button>
+        </form>
+
+        <div id="akten-list" class="list-container"></div>
+      </section>
+
+      <section id="straftaten" class="content-section">
+        <h2>Straftaten</h2>
+        <p>Kategorien und Statistiken zu Straftaten.</p>
+        <ul class="straftaten-list">
+          <li>Diebstahl</li>
+          <li>Raub</li>
+          <li>Vandalismus</li>
+          <li>Körperverletzung</li>
+          <li>Drogenhandel</li>
+          <li>...</li>
+        </ul>
+      </section>
+
+      <section id="loadouts" class="content-section">
+        <h2>Loadouts</h2>
+        <form id="loadout-form">
+          <label for="loadout-name">Loadout Name:</label>
+          <input type="text" id="loadout-name" placeholder="Name eingeben" required />
+
+          <label for="loadout-weapons">Wähle Waffen:</label>
+          <select id="loadout-weapons" multiple size="5">
+            <option value="pistole">Pistole</option>
+            <option value="gewehr">Gewehr</option>
+            <option value="schrotflinte">Schrotflinte</option>
+            <option value="sniper">Sniper</option>
+            <option value="taser">Taser</option>
+            <option value="machete">Machete</option>
+          </select>
+
+          <button type="submit">Loadout speichern</button>
+        </form>
+        <div id="loadout-list" class="list-container"></div>
+      </section>
+
+      <section id="fahrzeuge" class="content-section">
+        <h2>Fahrzeuge</h2>
+        <p>Übersicht über Einsatzfahrzeuge.</p>
+        <ul class="fahrzeuge-list">
+          <li>Polizeiwagen</li>
+          <li>Rettungswagen</li>
+          <li>Feuerwehrwagen</li>
+          <li>Hubschrauber</li>
+        </ul>
+      </section>
+
+      <section id="ausruestung" class="content-section">
+        <h2>Ausrüstung</h2>
+        <p>Liste der verfügbaren Ausrüstung und Zubehör.</p>
+        <ul class="ausruestung-list">
+          <li>Schutzweste</li>
+          <li>Handschellen</li>
+          <li>Funkgerät</li>
+          <li>Nachtsichtgerät</li>
+        </ul>
+      </section>
+
+      <section id="berichte" class="content-section">
+        <h2>Berichte</h2>
+        <p>Statistiken und Berichte (kommt bald).</p>
+      </section>
+
+      <section id="settings" class="content-section">
+        <h2>Einstellungen</h2>
+        <p>Hier kannst du später Einstellungen vornehmen.</p>
+      </section>
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
