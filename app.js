@@ -1,181 +1,142 @@
-// Navigation und Sektionen
-const navLinks = document.querySelectorAll('.sidebar-nav a');
+// Referenzen zu UI Elementen
+const navButtons = document.querySelectorAll('.nav-btn');
 const sections = document.querySelectorAll('.content-section');
-const pageTitle = document.getElementById('page-title');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const modalInput = document.getElementById('modal-input');
+const modalTextarea = document.getElementById('modal-textarea');
+const modalSaveBtn = document.getElementById('modal-save-btn');
+const modalCancelBtn = document.getElementById('modal-cancel-btn');
+const clearStorageBtn = document.getElementById('clear-storage');
 
-navLinks.forEach(link => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
+let currentList = ''; // Aktuelle Kategorie für Modal
 
-    // Aktives Menü
-    navLinks.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
+// Daten speichern und laden (LocalStorage)
+const STORAGE_KEY = 'copnet_berlinrp_data';
 
-    // Inhalt anzeigen
-    const target = link.dataset.section;
-    sections.forEach(sec => {
-      if (sec.id === target) {
-        sec.classList.add('active');
-        pageTitle.textContent = link.textContent.trim();
-      } else {
-        sec.classList.remove('active');
-      }
+let copnetData = {
+  fahndung: [],
+  akten: [],
+  straftaten: [],
+  personen: [],
+  berichte: [],
+};
+
+// --- Funktionen ---
+
+// Daten laden
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      copnetData = JSON.parse(saved);
+    } catch (e) {
+      console.error('Fehler beim Laden der Daten:', e);
+    }
+  }
+}
+
+// Daten speichern
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(copnetData));
+}
+
+// Anzeige aktualisieren
+function renderList(category) {
+  const listEl = document.getElementById(`${category}-list`);
+  listEl.innerHTML = '';
+  copnetData[category].forEach((item, index) => {
+    const li = document.createElement('li');
+    li.textContent = item.title;
+    li.title = item.details || '';
+    li.addEventListener('click', () => {
+      alert(`Details:\n${item.details || 'Keine weiteren Details.'}`);
+    });
+    listEl.appendChild(li);
+  });
+}
+
+// Alle Listen rendern
+function renderAll() {
+  for (const category in copnetData) {
+    renderList(category);
+  }
+}
+
+// Navigation umschalten
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Aktive Buttons und Sektionen setzen
+    navButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const sectionId = btn.dataset.section;
+    sections.forEach(s => {
+      s.classList.toggle('active', s.id === sectionId);
     });
   });
 });
 
-// Dashboard Buttons auf Sektionen verlinken
-document.getElementById('open-fahndung-section').addEventListener('click', () => activateSection('fahndung'));
-document.getElementById('open-akten-section').addEventListener('click', () => activateSection('akten'));
-document.getElementById('open-straftaten-section').addEventListener('click', () => activateSection('straftaten'));
-document.getElementById('open-loadouts-section').addEventListener('click', () => activateSection('loadouts'));
-
-function activateSection(id) {
-  navLinks.forEach(l => {
-    l.classList.toggle('active', l.dataset.section === id);
+// Modal öffnen
+document.querySelectorAll('.btn-add').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentList = btn.dataset.list;
+    modalTitle.textContent = `Neuer Eintrag in ${capitalize(currentList)}`;
+    modalInput.value = '';
+    modalTextarea.value = '';
+    openModal();
   });
-  sections.forEach(s => s.classList.toggle('active', s.id === id));
-  const activeLink = [...navLinks].find(l => l.dataset.section === id);
-  pageTitle.textContent = activeLink.textContent.trim();
-}
+});
 
-// --- Fahndung Form & Liste ---
-const fahndungForm = document.getElementById('fahndung-form');
-const fahndungList = document.getElementById('fahndung-list');
+// Modal speichern
+modalSaveBtn.addEventListener('click', () => {
+  const title = modalInput.value.trim();
+  const details = modalTextarea.value.trim();
 
-let fahndungen = JSON.parse(localStorage.getItem('fahndungen')) || [];
-
-function renderFahndungen() {
-  fahndungList.innerHTML = '';
-  if(fahndungen.length === 0) {
-    fahndungList.innerHTML = '<div>Keine Fahndungen vorhanden.</div>';
+  if (!title) {
+    alert('Bitte einen Titel eingeben!');
     return;
   }
-  fahndungen.forEach((f, i) => {
-    const div = document.createElement('div');
-    div.textContent = `${f.name} - ${f.beschreibung}`;
-    div.title = 'Zum Löschen klicken';
-    div.style.cursor = 'pointer';
-    div.addEventListener('click', () => {
-      if(confirm(`Fahndung "${f.name}" löschen?`)) {
-        fahndungen.splice(i,1);
-        saveFahndungen();
-        renderFahndungen();
-      }
-    });
-    fahndungList.appendChild(div);
-  });
+
+  copnetData[currentList].push({ title, details });
+  saveData();
+  renderList(currentList);
+  closeModal();
+});
+
+// Modal abbrechen
+modalCancelBtn.addEventListener('click', closeModal);
+
+// Modal Funktionen
+function openModal() {
+  modal.classList.remove('hidden');
+  modalInput.focus();
+}
+function closeModal() {
+  modal.classList.add('hidden');
 }
 
-function saveFahndungen() {
-  localStorage.setItem('fahndungen', JSON.stringify(fahndungen));
+// Hilfsfunktion
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-fahndungForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('fahndung-name').value.trim();
-  const beschreibung = document.getElementById('fahndung-beschreibung').value.trim();
-  if(name) {
-    fahndungen.push({name, beschreibung});
-    saveFahndungen();
-    renderFahndungen();
-    fahndungForm.reset();
+// Clear all data
+clearStorageBtn.addEventListener('click', () => {
+  if (confirm('Alle Daten löschen? Dies kann nicht rückgängig gemacht werden.')) {
+    copnetData = {
+      fahndung: [],
+      akten: [],
+      straftaten: [],
+      personen: [],
+      berichte: [],
+    };
+    saveData();
+    renderAll();
+    alert('Alle Daten wurden gelöscht.');
   }
 });
 
-renderFahndungen();
-
-// --- Akten Form & Liste ---
-const aktenForm = document.getElementById('akten-form');
-const aktenList = document.getElementById('akten-list');
-
-let akten = JSON.parse(localStorage.getItem('akten')) || [];
-
-function renderAkten() {
-  aktenList.innerHTML = '';
-  if(akten.length === 0) {
-    aktenList.innerHTML = '<div>Keine Akten vorhanden.</div>';
-    return;
-  }
-  akten.forEach((a, i) => {
-    const div = document.createElement('div');
-    div.innerHTML = `<strong>${a.titel}</strong>: ${a.inhalt}`;
-    div.title = 'Zum Löschen klicken';
-    div.style.cursor = 'pointer';
-    div.addEventListener('click', () => {
-      if(confirm(`Akte "${a.titel}" löschen?`)) {
-        akten.splice(i,1);
-        saveAkten();
-        renderAkten();
-      }
-    });
-    aktenList.appendChild(div);
-  });
-}
-
-function saveAkten() {
-  localStorage.setItem('akten', JSON.stringify(akten));
-}
-
-aktenForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const titel = document.getElementById('akten-titel').value.trim();
-  const inhalt = document.getElementById('akten-inhalt').value.trim();
-  if(titel) {
-    akten.push({titel, inhalt});
-    saveAkten();
-    renderAkten();
-    aktenForm.reset();
-  }
-});
-
-renderAkten();
-
-// --- Loadouts Form & Liste ---
-const loadoutForm = document.getElementById('loadout-form');
-const loadoutList = document.getElementById('loadout-list');
-
-let loadouts = JSON.parse(localStorage.getItem('loadouts')) || [];
-
-function renderLoadouts() {
-  loadoutList.innerHTML = '';
-  if(loadouts.length === 0) {
-    loadoutList.innerHTML = '<div>Keine Loadouts gespeichert.</div>';
-    return;
-  }
-  loadouts.forEach((l, i) => {
-    const div = document.createElement('div');
-    div.innerHTML = `<strong>${l.name}</strong>: ${l.weapons.join(', ')}`;
-    div.title = 'Zum Löschen klicken';
-    div.style.cursor = 'pointer';
-    div.addEventListener('click', () => {
-      if(confirm(`Loadout "${l.name}" löschen?`)) {
-        loadouts.splice(i,1);
-        saveLoadouts();
-        renderLoadouts();
-      }
-    });
-    loadoutList.appendChild(div);
-  });
-}
-
-function saveLoadouts() {
-  localStorage.setItem('loadouts', JSON.stringify(loadouts));
-}
-
-loadoutForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('loadout-name').value.trim();
-  const selectedOptions = [...document.getElementById('loadout-weapons').selectedOptions];
-  const weapons = selectedOptions.map(opt => opt.value);
-  if(name && weapons.length > 0) {
-    loadouts.push({name, weapons});
-    saveLoadouts();
-    renderLoadouts();
-    loadoutForm.reset();
-  } else {
-    alert('Bitte Name und mindestens eine Waffe auswählen!');
-  }
-});
-
-renderLoadouts();
+// Initialisieren
+loadData();
+renderAll();
