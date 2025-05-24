@@ -1,60 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CopNet-BerlinRP Loadouts</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <meta http-equiv="refresh" content="0; URL='main.html'" />
 </head>
-<body>
-  <h1>CopNet-BerlinRP Loadouts</h1>
-
-  <input id="loadoutInput" placeholder="Loadout Name" />
-  <button onclick="addLoadout()">Loadout speichern</button>
-
-  <ul id="loadoutList"></ul>
-
-  <script>
-    // Deine Firebase-Konfiguration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
-      authDomain: "copnet-berlinrp.firebaseapp.com",
-      projectId: "copnet-berlinrp",
-      storageBucket: "copnet-berlinrp.firebasestorage.app",
-      messagingSenderId: "325379817013",
-      appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
-      measurementId: "G-N7Z1C6XNJ0"
-    };
-
-    // Firebase initialisieren
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // Loadouts laden und anzeigen
-    function loadLoadouts() {
-      const list = document.getElementById('loadoutList');
-      list.innerHTML = '';
-      db.collection('loadouts').get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const li = document.createElement('li');
-          li.textContent = doc.data().name;
-          list.appendChild(li);
-        });
-      });
-    }
-
-    // Loadout hinzufügen
-    function addLoadout() {
-      const input = document.getElementById('loadoutInput');
-      const name = input.value.trim();
-      if (!name) return alert('Bitte Loadout Name eingeben');
-      db.collection('loadouts').add({ name }).then(() => {
-        input.value = '';
-        loadLoadouts();
-      });
-    }
-
-    // Direkt beim Laden die Loadouts anzeigen
-    loadLoadouts();
-  </script>
-</body>
+<body></body>
 </html>
