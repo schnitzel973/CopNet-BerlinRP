@@ -118,4 +118,171 @@ body, html {
   background: #e9f0ff;
   border-radius: 12px;
   padding: 25px 20px;
-  box-shadow: 0 8px
+  box-shadow: 0 8px 20px rgb(13 110 253 / 0.15);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgb(13 110 253 / 0.3);
+}
+
+.card h3 {
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #0d6efd;
+}
+
+.card p {
+  font-weight: 500;
+  margin-bottom: 15px;
+  color: #334155;
+}
+
+.card button {
+  background: #0d6efd;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.card button:hover {
+  background: #0845c4;
+}
+
+/* Forms */
+form {
+  max-width: 600px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+form label {
+  font-weight: 600;
+  color: #495057;
+}
+
+form input[type="text"],
+form textarea,
+form select {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1.5px solid #ced4da;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  resize: none;
+}
+
+form input[type="text"]:focus,
+form textarea:focus,
+form select:focus {
+  border-color: #0d6efd;
+  outline: none;
+}
+
+form button {
+  width: max-content;
+  background: #0d6efd;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background: #0845c4;
+}
+
+/* Listen */
+.list-container {
+  margin-top: 20px;
+  max-width: 600px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow: inset 0 0 10px #dee2e6;
+  max-height: 300px;
+  overflow-y: auto;
+  font-weight: 600;
+  color: #212529;
+}
+
+.list-container div {
+  padding: 8px 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.list-container div:last-child {
+  border-bottom: none;
+}
+
+ul.straftaten-list,
+ul.fahrzeuge-list,
+ul.ausruestung-list {
+  list-style: none;
+  padding-left: 0;
+  max-width: 600px;
+  font-weight: 600;
+  color: #212529;
+}
+
+ul.straftaten-list li,
+ul.fahrzeuge-list li,
+ul.ausruestung-list li {
+  background: #e9f0ff;
+  margin-bottom: 10px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgb(13 110 253 / 0.12);
+  cursor: default;
+  transition: background-color 0.2s ease;
+}
+
+ul.straftaten-list li:hover,
+ul.fahrzeuge-list li:hover,
+ul.ausruestung-list li:hover {
+  background-color: #cfe0ff;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 15px 20px;
+  }
+  .sidebar-logo {
+    flex: 1;
+    text-align: left;
+    margin-bottom: 0;
+  }
+  .sidebar-nav {
+    display: flex;
+    gap: 15px;
+    flex-grow: 4;
+    margin: 0;
+  }
+  .sidebar-nav li {
+    margin-bottom: 0;
+  }
+  .sidebar-nav li a {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  .main-content {
+    padding: 20px 15px;
+  }
+}
