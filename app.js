@@ -1,142 +1,239 @@
-// Referenzen zu UI Elementen
-const navButtons = document.querySelectorAll('.nav-btn');
-const sections = document.querySelectorAll('.content-section');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modal-title');
-const modalInput = document.getElementById('modal-input');
-const modalTextarea = document.getElementById('modal-textarea');
-const modalSaveBtn = document.getElementById('modal-save-btn');
-const modalCancelBtn = document.getElementById('modal-cancel-btn');
-const clearStorageBtn = document.getElementById('clear-storage');
-
-let currentList = ''; // Aktuelle Kategorie für Modal
-
-// Daten speichern und laden (LocalStorage)
-const STORAGE_KEY = 'copnet_berlinrp_data';
-
+// --- Datenstruktur ---
 let copnetData = {
-  fahndung: [],
   akten: [],
-  straftaten: [],
-  personen: [],
-  berichte: [],
+  fahndung: [],
+  straftaten: []
 };
 
-// --- Funktionen ---
-
-// Daten laden
-function loadData() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      copnetData = JSON.parse(saved);
-    } catch (e) {
-      console.error('Fehler beim Laden der Daten:', e);
-    }
-  }
-}
-
-// Daten speichern
+// --- Laden / Speichern ---
 function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(copnetData));
+  localStorage.setItem('copnetData', JSON.stringify(copnetData));
+}
+function loadData() {
+  const data = localStorage.getItem('copnetData');
+  if(data) copnetData = JSON.parse(data);
 }
 
-// Anzeige aktualisieren
-function renderList(category) {
-  const listEl = document.getElementById(`${category}-list`);
-  listEl.innerHTML = '';
-  copnetData[category].forEach((item, index) => {
+// --- HTML Elemente ---
+const aktenList = document.getElementById('akten-list');
+const filterNameInput = document.getElementById('akten-filter-name');
+const filterCrimeSelect = document.getElementById('akten-filter-crime');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const crimeTypeSelect = document.getElementById('crimeTypeSelect');
+const aktenForm = document.getElementById('akten-form');
+const saveBtn = document.getElementById('modal-save-btn');
+const cancelBtn = document.getElementById('modal-cancel-btn');
+
+const addAkteBtn = document.querySelector('button.btn-add[data-list="akten"]');
+
+let editIndex = null; // Für Bearbeitung (noch nicht implementiert)
+
+// --- Felder für Akten nach Kategorie ---
+const formFields = {
+  Vermerk: [
+    { label: 'Name', id: 'name', type: 'text' },
+    { label: 'Bemerkung', id: 'bemerkung', type: 'textarea' }
+  ],
+  'Leichte Kriminalität': [
+    { label: 'Name', id: 'name', type: 'text' },
+    { label: 'Alter', id: 'alter', type: 'number' },
+    { label: 'Geschlecht', id: 'geschlecht', type: 'text' },
+    { label: 'Haarfarbe', id: 'haarfarbe', type: 'text' },
+    { label: 'Job', id: 'job', type: 'text' },
+    { label: 'Wohnort', id: 'wohnort', type: 'text' },
+    { label: 'Auto-Kennzeichen', id: 'auto', type: 'text' },
+    { label: 'Geldstrafe', id: 'geldstrafe', type: 'text' },
+    { label: 'Hafteinheiten', id: 'hafteinheiten', type: 'text' },
+    { label: 'Gesetze gegen die verstoßen wurden', id: 'gesetze', type: 'textarea' },
+    { label: 'Unterschrift', id: 'unterschrift', type: 'text' },
+    { label: 'Datum', id: 'datum', type: 'date' }
+  ],
+  'Mittlere Kriminalität': [
+    // Gleiche Felder wie bei "Leichte Kriminalität"
+    { label: 'Name', id: 'name', type: 'text' },
+    { label: 'Alter', id: 'alter', type: 'number' },
+    { label: 'Geschlecht', id: 'geschlecht', type: 'text' },
+    { label: 'Haarfarbe', id: 'haarfarbe', type: 'text' },
+    { label: 'Job', id: 'job', type: 'text' },
+    { label: 'Wohnort', id: 'wohnort', type: 'text' },
+    { label: 'Auto-Kennzeichen', id: 'auto', type: 'text' },
+    { label: 'Geldstrafe', id: 'geldstrafe', type: 'text' },
+    { label: 'Hafteinheiten', id: 'hafteinheiten', type: 'text' },
+    { label: 'Gesetze gegen die verstoßen wurden', id: 'gesetze', type: 'textarea' },
+    { label: 'Unterschrift', id: 'unterschrift', type: 'text' },
+    { label: 'Datum', id: 'datum', type: 'date' }
+  ],
+  'Schwere Kriminalität': [
+    // Gleiche Felder wie bei "Leichte Kriminalität"
+    { label: 'Name', id: 'name', type: 'text' },
+    { label: 'Alter', id: 'alter', type: 'number' },
+    { label: 'Geschlecht', id: 'geschlecht', type: 'text' },
+    { label: 'Haarfarbe', id: 'haarfarbe', type: 'text' },
+    { label: 'Job', id: 'job', type: 'text' },
+    { label: 'Wohnort', id: 'wohnort', type: 'text' },
+    { label: 'Auto-Kennzeichen', id: 'auto', type: 'text' },
+    { label: 'Geldstrafe', id: 'geldstrafe', type: 'text' },
+    { label: 'Hafteinheiten', id: 'hafteinheiten', type: 'text' },
+    { label: 'Gesetze gegen die verstoßen wurden', id: 'gesetze', type: 'textarea' },
+    { label: 'Unterschrift', id: 'unterschrift', type: 'text' },
+    { label: 'Datum', id: 'datum', type: 'date' }
+  ]
+};
+
+// --- Funktion: Modal-Formular aufbauen ---
+function buildForm(category, data = {}) {
+  aktenForm.innerHTML = ''; // Reset form
+
+  const fields = formFields[category] || [];
+  fields.forEach(field => {
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '12px';
+
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    label.htmlFor = field.id;
+    label.style.display = 'block';
+    label.style.fontWeight = '600';
+    label.style.marginBottom = '6px';
+
+    let input;
+    if(field.type === 'textarea') {
+      input = document.createElement('textarea');
+      input.rows = 3;
+    } else {
+      input = document.createElement('input');
+      input.type = field.type;
+    }
+
+    input.id = field.id;
+    input.name = field.id;
+    input.style.width = '100%';
+    input.style.padding = '10px';
+    input.style.border = '1.5px solid #cdd4e0';
+    input.style.borderRadius = '10px';
+    input.value = data[field.id] || '';
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    aktenForm.appendChild(wrapper);
+  });
+}
+
+// --- Funktion: Akten anzeigen ---
+function renderAkten() {
+  const filterName = filterNameInput.value.toLowerCase();
+  const filterCrime = filterCrimeSelect.value;
+
+  aktenList.innerHTML = '';
+
+  copnetData.akten.forEach((akte, idx) => {
+    const name = akte.name ? akte.name.toLowerCase() : '';
+    const crime = akte.category || '';
+
+    if(filterName && !name.includes(filterName)) return;
+    if(filterCrime && crime !== filterCrime) return;
+
     const li = document.createElement('li');
-    li.textContent = item.title;
-    li.title = item.details || '';
-    li.addEventListener('click', () => {
-      alert(`Details:\n${item.details || 'Keine weiteren Details.'}`);
-    });
-    listEl.appendChild(li);
+
+    if(crime === 'Vermerk') {
+      // Nur Name + Bemerkung anzeigen
+      li.textContent = `Name: ${akte.name}\nBemerkung: ${akte.bemerkung || ''}`;
+    } else {
+      // Große Vorlage
+      let text = '';
+      text += `Name: ${akte.name}\n`;
+      text += `Alter: ${akte.alter}\n`;
+      text += `Geschlecht: ${akte.geschlecht}\n`;
+      text += `Haarfarbe: ${akte.haarfarbe}\n`;
+      text += `Job: ${akte.job}\n`;
+      text += `Wohnort: ${akte.wohnort}\n`;
+      text += `Auto-Kennzeichen: ${akte.auto}\n`;
+      text += `Geldstrafe: ${akte.geldstrafe}\n`;
+      text += `Hafteinheiten: ${akte.hafteinheiten}\n`;
+      text += `Gesetze gegen die verstoßen wurden:\n${akte.gesetze}\n`;
+      text += `Unterschrift: ${akte.unterschrift}\n`;
+      text += `Datum: ${akte.datum}\n`;
+      li.textContent = text;
+    }
+
+    aktenList.appendChild(li);
   });
 }
 
-// Alle Listen rendern
-function renderAll() {
-  for (const category in copnetData) {
-    renderList(category);
-  }
+// --- Modal Öffnen ---
+function openModal() {
+  modal.classList.remove('hidden');
+  crimeTypeSelect.value = 'Vermerk';
+  buildForm('Vermerk');
+  modalTitle.textContent = 'Neue Akte erstellen';
+  editIndex = null;
 }
 
-// Navigation umschalten
-navButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Aktive Buttons und Sektionen setzen
-    navButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+// --- Modal Schließen ---
+function closeModal() {
+  modal.classList.add('hidden');
+  aktenForm.reset();
+}
 
-    const sectionId = btn.dataset.section;
-    sections.forEach(s => {
-      s.classList.toggle('active', s.id === sectionId);
-    });
-  });
+// --- Wenn Kategorie geändert wird, Form neu bauen ---
+crimeTypeSelect.addEventListener('change', () => {
+  buildForm(crimeTypeSelect.value);
 });
 
-// Modal öffnen
-document.querySelectorAll('.btn-add').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentList = btn.dataset.list;
-    modalTitle.textContent = `Neuer Eintrag in ${capitalize(currentList)}`;
-    modalInput.value = '';
-    modalTextarea.value = '';
-    openModal();
+// --- Speichern ---
+saveBtn.addEventListener('click', () => {
+  // Werte aus Formular auslesen
+  const category = crimeTypeSelect.value;
+  const fields = formFields[category];
+
+  let newEntry = { category };
+
+  // Prüfe alle Felder aus
+  let valid = true;
+  fields.forEach(field => {
+    const val = aktenForm[field.id].value.trim();
+    if(field.id === 'name' && !val) valid = false; // Name Pflichtfeld
+    newEntry[field.id] = val;
   });
-});
 
-// Modal speichern
-modalSaveBtn.addEventListener('click', () => {
-  const title = modalInput.value.trim();
-  const details = modalTextarea.value.trim();
-
-  if (!title) {
-    alert('Bitte einen Titel eingeben!');
+  if(!valid) {
+    alert('Bitte mindestens den Namen ausfüllen.');
     return;
   }
 
-  copnetData[currentList].push({ title, details });
+  // Eintrag speichern
+  copnetData.akten.push(newEntry);
   saveData();
-  renderList(currentList);
+  renderAkten();
   closeModal();
 });
 
-// Modal abbrechen
-modalCancelBtn.addEventListener('click', closeModal);
+// --- Abbrechen ---
+cancelBtn.addEventListener('click', closeModal);
 
-// Modal Funktionen
-function openModal() {
-  modal.classList.remove('hidden');
-  modalInput.focus();
-}
-function closeModal() {
-  modal.classList.add('hidden');
-}
+// --- Filter Events ---
+filterNameInput.addEventListener('input', renderAkten);
+filterCrimeSelect.addEventListener('change', renderAkten);
 
-// Hilfsfunktion
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+// --- Add Button ---
+addAkteBtn.addEventListener('click', openModal);
 
-// Clear all data
-clearStorageBtn.addEventListener('click', () => {
-  if (confirm('Alle Daten löschen? Dies kann nicht rückgängig gemacht werden.')) {
-    copnetData = {
-      fahndung: [],
-      akten: [],
-      straftaten: [],
-      personen: [],
-      berichte: [],
-    };
-    saveData();
-    renderAll();
-    alert('Alle Daten wurden gelöscht.');
-  }
-});
-
-// Initialisieren
+// --- Init ---
 loadData();
-renderAll();
+renderAkten();
+
+
+// --- Navigation (einfach für deine Seite) ---
+document.querySelectorAll('nav ul li a').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('nav ul li a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+
+    const target = link.getAttribute('href').substring(1);
+    document.querySelectorAll('main > section').forEach(section => {
+      section.style.display = section.id === target ? 'block' : 'none';
+    });
+  });
+});
