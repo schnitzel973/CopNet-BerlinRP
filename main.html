@@ -4,44 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CopNet-BerlinRP</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <header>
-  <h1>CopNet-BerlinRP</h1>
+  <h1>CopNet-BerlinRP Loadout System</h1>
 </header>
 
 <main>
+  <section id="loadout-section">
+    <h2>Dein Loadout</h2>
 
-  <section id="auth-section">
-    <h2>Login / Registrierung</h2>
-    <input type="email" id="email" placeholder="E-Mail" />
-    <input type="password" id="password" placeholder="Passwort" />
-    <button id="login-btn">Login</button>
-    <button id="register-btn">Registrieren</button>
-    <p id="auth-message"></p>
-  </section>
+    <label for="loadout-name">Loadout Name:</label>
+    <input type="text" id="loadout-name" placeholder="Name eingeben" />
 
-  <section id="loadout-section" style="display:none;">
-    <h2>Deine Loadouts</h2>
-    <input type="text" id="loadout-name" placeholder="Loadout Name" />
+    <label for="loadout-weapons">Wähle Waffen:</label>
     <select id="loadout-weapons" multiple size="4">
       <option value="pistole">Pistole</option>
       <option value="gewehr">Gewehr</option>
       <option value="schrotflinte">Schrotflinte</option>
       <option value="sniper">Sniper</option>
     </select>
+
     <button id="save-loadout-btn">Loadout speichern</button>
-    <p id="loadout-message"></p>
+
     <div id="loadout-list"></div>
   </section>
-
 </main>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="app.js"></script>
 
 </body>
