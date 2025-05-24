@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CopNet BerlinRP</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,69 +16,82 @@
 <header>
   <h1>CopNet BerlinRP</h1>
   <nav>
-    <ul>
-      <li><a href="#akten" class="nav-link active">Akten</a></li>
-      <li><a href="#fahndung" class="nav-link">Fahndung</a></li>
-      <li><a href="#straftaten" class="nav-link">Straftaten</a></li>
+    <ul class="nav-list">
+      <li><button class="nav-btn active" data-section="dashboard">Dashboard</button></li>
+      <li><button class="nav-btn" data-section="fahndung">Fahndung</button></li>
+      <li><button class="nav-btn" data-section="akten">Akten</button></li>
+      <li><button class="nav-btn" data-section="straftaten">Straftaten</button></li>
+      <li><button class="nav-btn" data-section="personen">Personen</button></li>
+      <li><button class="nav-btn" data-section="berichte">Berichte</button></li>
+      <li><button class="nav-btn" data-section="einstellungen">Einstellungen</button></li>
     </ul>
   </nav>
 </header>
 
 <main>
+  <!-- Dashboard -->
+  <section id="dashboard" class="content-section active">
+    <h2>Dashboard</h2>
+    <p>Willkommen im CopNet BerlinRP. Übersicht und Status.</p>
+  </section>
+
+  <!-- Fahndung -->
+  <section id="fahndung" class="content-section">
+    <h2>Fahndung</h2>
+    <ul id="fahndung-list" class="item-list"></ul>
+    <button class="btn-add" data-list="fahndung">Fahndung hinzufügen</button>
+  </section>
+
   <!-- Akten -->
   <section id="akten" class="content-section">
     <h2>Akten</h2>
-    <div class="filter-container">
-      <input type="text" id="akten-filter-name" placeholder="Nach Name filtern..." />
-      <select id="akten-filter-crime">
-        <option value="">Alle Kategorien</option>
-        <option value="Vermerk">Vermerk</option>
-        <option value="Leichte Kriminalität">Leichte Kriminalität</option>
-        <option value="Mittlere Kriminalität">Mittlere Kriminalität</option>
-        <option value="Schwere Kriminalität">Schwere Kriminalität</option>
-      </select>
-    </div>
     <ul id="akten-list" class="item-list"></ul>
     <button class="btn-add" data-list="akten">Akte erstellen</button>
   </section>
 
-  <!-- Fahndung -->
-  <section id="fahndung" class="content-section" style="display:none;">
-    <h2>Fahndung</h2>
-    <ul id="fahndung-list" class="item-list"></ul>
-    <button class="btn-add" data-list="fahndung">Fahndung erstellen</button>
-  </section>
-
   <!-- Straftaten -->
-  <section id="straftaten" class="content-section" style="display:none;">
+  <section id="straftaten" class="content-section">
     <h2>Straftaten</h2>
     <ul id="straftaten-list" class="item-list"></ul>
-    <button class="btn-add" data-list="straftaten">Straftat erstellen</button>
+    <button class="btn-add" data-list="straftaten">Straftat hinzufügen</button>
+  </section>
+
+  <!-- Personen -->
+  <section id="personen" class="content-section">
+    <h2>Personen</h2>
+    <ul id="personen-list" class="item-list"></ul>
+    <button class="btn-add" data-list="personen">Person hinzufügen</button>
+  </section>
+
+  <!-- Berichte -->
+  <section id="berichte" class="content-section">
+    <h2>Berichte</h2>
+    <ul id="berichte-list" class="item-list"></ul>
+    <button class="btn-add" data-list="berichte">Bericht hinzufügen</button>
+  </section>
+
+  <!-- Einstellungen -->
+  <section id="einstellungen" class="content-section">
+    <h2>Einstellungen</h2>
+    <p>Hier kannst du die Einstellungen vornehmen.</p>
+    <button id="clear-storage">Alle Daten löschen</button>
   </section>
 </main>
 
 <!-- Modal -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h3 id="modal-title">Neue Akte erstellen</h3>
-
-    <label for="crimeTypeSelect" style="font-weight:600;">Kategorie:</label>
-    <select id="crimeTypeSelect" style="margin-bottom: 15px; padding: 8px; border-radius: 8px; border: 1.5px solid #ccc; width: 100%;">
-      <option value="Vermerk">Vermerk</option>
-      <option value="Leichte Kriminalität">Leichte Kriminalität</option>
-      <option value="Mittlere Kriminalität">Mittlere Kriminalität</option>
-      <option value="Schwere Kriminalität">Schwere Kriminalität</option>
-    </select>
-
-    <form id="akten-form"></form>
-
+    <h3 id="modal-title">Neuer Eintrag</h3>
+    <input type="text" id="modal-input" placeholder="Text eingeben..." />
+    <textarea id="modal-textarea" placeholder="Details (optional)" rows="4"></textarea>
     <div class="modal-buttons">
-      <button id="modal-save-btn" class="btn-primary">Speichern</button>
-      <button id="modal-cancel-btn" class="btn-secondary">Abbrechen</button>
+      <button id="modal-save-btn">Speichern</button>
+      <button id="modal-cancel-btn">Abbrechen</button>
     </div>
   </div>
 </div>
 
 <script src="app.js"></script>
+
 </body>
 </html>
