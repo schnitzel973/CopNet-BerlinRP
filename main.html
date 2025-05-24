@@ -1,97 +1,168 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CopNet BerlinRP</title>
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CopNet BerlinRP – Professionelles ERLC Informationssystem</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<div class="container">
 
-<header>
-  <h1>CopNet BerlinRP</h1>
-  <nav>
-    <ul class="nav-list">
-      <li><button class="nav-btn active" data-section="dashboard">Dashboard</button></li>
-      <li><button class="nav-btn" data-section="fahndung">Fahndung</button></li>
-      <li><button class="nav-btn" data-section="akten">Akten</button></li>
-      <li><button class="nav-btn" data-section="straftaten">Straftaten</button></li>
-      <li><button class="nav-btn" data-section="personen">Personen</button></li>
-      <li><button class="nav-btn" data-section="berichte">Berichte</button></li>
-      <li><button class="nav-btn" data-section="einstellungen">Einstellungen</button></li>
-    </ul>
-  </nav>
-</header>
+  <aside class="sidebar" role="navigation" aria-label="Hauptnavigation">
+    <header class="sidebar-header">
+      <h1>CopNet BerlinRP</h1>
+    </header>
+    <nav>
+      <ul class="sidebar-list" role="menubar">
+        <li class="sidebar-item active" role="menuitem" tabindex="0" data-section="startseite">Startseite</li>
+        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="info">Cop-Net Informationen</li>
+        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="akten">Akten-System</li>
+        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="fahndung">Aktuelle Fahndung</li>
+        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="dienstberichte">Dienstberichte</li>
+        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="personal">Personal-Akten</li>
+        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="einstellungen">Einstellungen</li>
+      </ul>
+    </nav>
+    <footer class="sidebar-footer">
+      <small>© 2025 CopNet BerlinRP</small>
+    </footer>
+  </aside>
 
-<main>
-  <!-- Dashboard -->
-  <section id="dashboard" class="content-section active">
-    <h2>Dashboard</h2>
-    <p>Willkommen im CopNet BerlinRP. Übersicht und Status.</p>
-  </section>
+  <main class="main-content" role="main">
+    <section id="startseite" class="content-section active" tabindex="0" aria-label="Startseite">
+      <h2>Willkommen beim CopNet BerlinRP</h2>
+      <p>Dein modernes Informationsportal für ERLC in Roblox.</p>
+      <p>Wähle links eine Kategorie, um mehr zu erfahren.</p>
+      <img src="images/copnet_dashboard.png" alt="Dashboard Übersicht" class="dashboard-img" />
+    </section>
 
-  <!-- Fahndung -->
-  <section id="fahndung" class="content-section">
-    <h2>Fahndung</h2>
-    <ul id="fahndung-list" class="item-list"></ul>
-    <button class="btn-add" data-list="fahndung">Fahndung hinzufügen</button>
-  </section>
+    <section id="info" class="content-section" tabindex="0" aria-label="Cop-Net Informationen">
+      <h2>Cop-Net Informationen</h2>
+      <article>
+        <h3>Was ist CopNet?</h3>
+        <p>CopNet ist ein umfassendes Informationssystem, das alle relevanten Daten rund um ERLC bündelt.</p>
+      </article>
+      <article>
+        <h3>Systemfunktionen</h3>
+        <ul>
+          <li>Aktenverwaltung</li>
+          <li>Fahndungslisten</li>
+          <li>Dienstberichte</li>
+          <li>Personalakten</li>
+          <li>Einstellungen & Benutzerverwaltung</li>
+        </ul>
+      </article>
+    </section>
 
-  <!-- Akten -->
-  <section id="akten" class="content-section">
-    <h2>Akten</h2>
-    <ul id="akten-list" class="item-list"></ul>
-    <button class="btn-add" data-list="akten">Akte erstellen</button>
-  </section>
+    <section id="akten" class="content-section" tabindex="0" aria-label="Akten-System">
+      <h2>Akten-System</h2>
+      <p>Verwalte Verdächtigen und ihre Straftaten übersichtlich und effizient.</p>
 
-  <!-- Straftaten -->
-  <section id="straftaten" class="content-section">
-    <h2>Straftaten</h2>
-    <ul id="straftaten-list" class="item-list"></ul>
-    <button class="btn-add" data-list="straftaten">Straftat hinzufügen</button>
-  </section>
+      <div class="akten-filter-container">
+        <label for="akten-filter-name">Filter nach Name:</label>
+        <input type="text" id="akten-filter-name" placeholder="Name eingeben..." autocomplete="off" />
 
-  <!-- Personen -->
-  <section id="personen" class="content-section">
-    <h2>Personen</h2>
-    <ul id="personen-list" class="item-list"></ul>
-    <button class="btn-add" data-list="personen">Person hinzufügen</button>
-  </section>
+        <label for="akten-filter-kriminalitaet">Kriminalitätsstufe:</label>
+        <select id="akten-filter-kriminalitaet" aria-label="Kriminalitätsstufe auswählen">
+          <option value="alle">Alle</option>
+          <option value="leicht">Leichte Kriminalität</option>
+          <option value="mittel">Mittlere Kriminalität</option>
+          <option value="schwer">Schwere Kriminalität</option>
+          <option value="vermerk">Vermerk (Bemerkung)</option>
+        </select>
 
-  <!-- Berichte -->
-  <section id="berichte" class="content-section">
-    <h2>Berichte</h2>
-    <ul id="berichte-list" class="item-list"></ul>
-    <button class="btn-add" data-list="berichte">Bericht hinzufügen</button>
-  </section>
+        <button id="akten-filter-reset" class="btn-secondary">Filter zurücksetzen</button>
+      </div>
 
-  <!-- Einstellungen -->
-  <section id="einstellungen" class="content-section">
-    <h2>Einstellungen</h2>
-    <p>Hier kannst du die Einstellungen vornehmen.</p>
-    <button id="clear-storage">Alle Daten löschen</button>
-  </section>
-</main>
+      <div id="akten-list" class="akten-list">
+        <!-- Dynamisch befüllte Akten werden hier angezeigt -->
+      </div>
 
-<!-- Modal -->
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <h3 id="modal-title">Neuer Eintrag</h3>
-    <input type="text" id="modal-input" placeholder="Text eingeben..." />
-    <textarea id="modal-textarea" placeholder="Details (optional)" rows="4"></textarea>
-    <div class="modal-buttons">
-      <button id="modal-save-btn">Speichern</button>
-      <button id="modal-cancel-btn">Abbrechen</button>
-    </div>
-  </div>
+      <button id="akten-neu-btn" class="btn-primary">Neue Akte anlegen</button>
+
+      <!-- Modal für Akte -->
+      <div id="akten-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="akten-modal-title" aria-describedby="akten-modal-desc">
+        <div class="modal-content">
+          <h3 id="akten-modal-title">Neue Akte anlegen</h3>
+          <form id="akten-form">
+            <fieldset>
+              <legend>Aktenart wählen</legend>
+              <label><input type="radio" name="aktenart" value="vermerk" checked /> Vermerk (Name + Bemerkung)</label><br />
+              <label><input type="radio" name="aktenart" value="kriminalitaet" /> Kriminalität (detailliert)</label>
+            </fieldset>
+
+            <div id="vermerk-fields">
+              <label for="vermerk-name">Name:</label>
+              <input type="text" id="vermerk-name" name="vermerk-name" autocomplete="off" />
+              <label for="vermerk-bemerkung">Bemerkung:</label>
+              <textarea id="vermerk-bemerkung" name="vermerk-bemerkung" rows="3"></textarea>
+            </div>
+
+            <div id="kriminalitaet-fields" class="hidden">
+              <label for="krim-name">Name:</label>
+              <input type="text" id="krim-name" name="krim-name" autocomplete="off" />
+              <label for="krim-alter">Alter:</label>
+              <input type="number" id="krim-alter" name="krim-alter" min="0" max="150" />
+              <label for="krim-geschlecht">Geschlecht:</label>
+              <select id="krim-geschlecht" name="krim-geschlecht">
+                <option value="">Bitte wählen</option>
+                <option value="m">Männlich</option>
+                <option value="w">Weiblich</option>
+                <option value="d">Divers</option>
+              </select>
+              <label for="krim-haarfarbe">Haarfarbe:</label>
+              <input type="text" id="krim-haarfarbe" name="krim-haarfarbe" autocomplete="off" />
+              <label for="krim-job">Job:</label>
+              <input type="text" id="krim-job" name="krim-job" autocomplete="off" />
+              <label for="krim-wohnort">Wohnort:</label>
+              <input type="text" id="krim-wohnort" name="krim-wohnort" autocomplete="off" />
+              <label for="krim-auto">Auto-Kennzeichen:</label>
+              <input type="text" id="krim-auto" name="krim-auto" autocomplete="off" />
+              <label for="krim-geldstrafe">Geldstrafe:</label>
+              <input type="number" id="krim-geldstrafe" name="krim-geldstrafe" min="0" />
+              <label for="krim-hafteinheiten">Hafteinheiten:</label>
+              <input type="number" id="krim-hafteinheiten" name="krim-hafteinheiten" min="0" />
+              <label for="krim-paragraefe">Gesetze / Paragrafen:</label>
+              <textarea id="krim-paragraefe" name="krim-paragraefe" rows="3" placeholder="Paragrafen mit Nummern auflisten"></textarea>
+              <label for="krim-unterschrift">Unterschrift:</label>
+              <input type="text" id="krim-unterschrift" name="krim-unterschrift" autocomplete="off" />
+              <label for="krim-datum">Datum:</label>
+              <input type="date" id="krim-datum" name="krim-datum" />
+            </div>
+
+            <div class="modal-actions">
+              <button type="submit" class="btn-primary">Speichern</button>
+              <button type="button" id="akten-cancel-btn" class="btn-secondary">Abbrechen</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="fahndung" class="content-section" tabindex="0" aria-label="Aktuelle Fahndung">
+      <h2>Aktuelle Fahndungen</h2>
+      <p>Hier kannst du Fahndungslisten anzeigen und verwalten (kommt bald!).</p>
+    </section>
+
+    <section id="dienstberichte" class="content-section" tabindex="0" aria-label="Dienstberichte">
+      <h2>Dienstberichte</h2>
+      <p>Dienstberichte werden in Kürze verfügbar sein.</p>
+    </section>
+
+    <section id="personal" class="content-section" tabindex="0" aria-label="Personal-Akten">
+      <h2>Personal-Akten</h2>
+      <p>Personal-Akten System wird vorbereitet.</p>
+    </section>
+
+    <section id="einstellungen" class="content-section" tabindex="0" aria-label="Einstellungen">
+      <h2>Einstellungen</h2>
+      <p>Einstellungen folgen bald.</p>
+    </section>
+  </main>
+
 </div>
 
 <script src="app.js"></script>
-
 </body>
 </html>
