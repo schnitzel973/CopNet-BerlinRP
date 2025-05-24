@@ -1,23 +1,17 @@
-// --- Datenstruktur ---
+// === CopNet BerlinRP - Akten System & Navigation ===
+
+// --- Datenstruktur für Akten ---
 let copnetData = {
   akten: [],
   fahndung: [],
   straftaten: []
 };
 
-// --- Laden / Speichern ---
-function saveData() {
-  localStorage.setItem('copnetData', JSON.stringify(copnetData));
-}
-function loadData() {
-  const data = localStorage.getItem('copnetData');
-  if(data) copnetData = JSON.parse(data);
-}
-
-// --- HTML Elemente ---
 const aktenList = document.getElementById('akten-list');
 const filterNameInput = document.getElementById('akten-filter-name');
 const filterCrimeSelect = document.getElementById('akten-filter-crime');
+const addAkteBtn = document.querySelector('.btn-add[data-list="akten"]');
+
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modal-title');
 const crimeTypeSelect = document.getElementById('crimeTypeSelect');
@@ -25,80 +19,83 @@ const aktenForm = document.getElementById('akten-form');
 const saveBtn = document.getElementById('modal-save-btn');
 const cancelBtn = document.getElementById('modal-cancel-btn');
 
-const addAkteBtn = document.querySelector('button.btn-add[data-list="akten"]');
+let editIndex = null;
 
-let editIndex = null; // Für Bearbeitung (noch nicht implementiert)
-
-// --- Felder für Akten nach Kategorie ---
+// --- Formularfelder je Kategorie ---
 const formFields = {
   Vermerk: [
-    { label: 'Name', id: 'name', type: 'text' },
-    { label: 'Bemerkung', id: 'bemerkung', type: 'textarea' }
+    { id: 'name', label: 'Name', type: 'text' },
+    { id: 'bemerkung', label: 'Bemerkung', type: 'textarea' }
   ],
   'Leichte Kriminalität': [
-    { label: 'Name', id: 'name', type: 'text' },
-    { label: 'Alter', id: 'alter', type: 'number' },
-    { label: 'Geschlecht', id: 'geschlecht', type: 'text' },
-    { label: 'Haarfarbe', id: 'haarfarbe', type: 'text' },
-    { label: 'Job', id: 'job', type: 'text' },
-    { label: 'Wohnort', id: 'wohnort', type: 'text' },
-    { label: 'Auto-Kennzeichen', id: 'auto', type: 'text' },
-    { label: 'Geldstrafe', id: 'geldstrafe', type: 'text' },
-    { label: 'Hafteinheiten', id: 'hafteinheiten', type: 'text' },
-    { label: 'Gesetze gegen die verstoßen wurden', id: 'gesetze', type: 'textarea' },
-    { label: 'Unterschrift', id: 'unterschrift', type: 'text' },
-    { label: 'Datum', id: 'datum', type: 'date' }
+    { id: 'name', label: 'Name', type: 'text' },
+    { id: 'alter', label: 'Alter', type: 'number' },
+    { id: 'geschlecht', label: 'Geschlecht', type: 'text' },
+    { id: 'haarfarbe', label: 'Haarfarbe', type: 'text' },
+    { id: 'job', label: 'Job', type: 'text' },
+    { id: 'wohnort', label: 'Wohnort', type: 'text' },
+    { id: 'auto', label: 'Auto-Kennzeichen', type: 'text' },
+    { id: 'geldstrafe', label: 'Geldstrafe', type: 'text' },
+    { id: 'hafteinheiten', label: 'Hafteinheiten', type: 'text' },
+    { id: 'gesetze', label: 'Gesetze gegen die verstoßen wurden', type: 'textarea' },
+    { id: 'unterschrift', label: 'Unterschrift', type: 'text' },
+    { id: 'datum', label: 'Datum', type: 'date' }
   ],
   'Mittlere Kriminalität': [
-    // Gleiche Felder wie bei "Leichte Kriminalität"
-    { label: 'Name', id: 'name', type: 'text' },
-    { label: 'Alter', id: 'alter', type: 'number' },
-    { label: 'Geschlecht', id: 'geschlecht', type: 'text' },
-    { label: 'Haarfarbe', id: 'haarfarbe', type: 'text' },
-    { label: 'Job', id: 'job', type: 'text' },
-    { label: 'Wohnort', id: 'wohnort', type: 'text' },
-    { label: 'Auto-Kennzeichen', id: 'auto', type: 'text' },
-    { label: 'Geldstrafe', id: 'geldstrafe', type: 'text' },
-    { label: 'Hafteinheiten', id: 'hafteinheiten', type: 'text' },
-    { label: 'Gesetze gegen die verstoßen wurden', id: 'gesetze', type: 'textarea' },
-    { label: 'Unterschrift', id: 'unterschrift', type: 'text' },
-    { label: 'Datum', id: 'datum', type: 'date' }
+    { id: 'name', label: 'Name', type: 'text' },
+    { id: 'alter', label: 'Alter', type: 'number' },
+    { id: 'geschlecht', label: 'Geschlecht', type: 'text' },
+    { id: 'haarfarbe', label: 'Haarfarbe', type: 'text' },
+    { id: 'job', label: 'Job', type: 'text' },
+    { id: 'wohnort', label: 'Wohnort', type: 'text' },
+    { id: 'auto', label: 'Auto-Kennzeichen', type: 'text' },
+    { id: 'geldstrafe', label: 'Geldstrafe', type: 'text' },
+    { id: 'hafteinheiten', label: 'Hafteinheiten', type: 'text' },
+    { id: 'gesetze', label: 'Gesetze gegen die verstoßen wurden', type: 'textarea' },
+    { id: 'unterschrift', label: 'Unterschrift', type: 'text' },
+    { id: 'datum', label: 'Datum', type: 'date' }
   ],
   'Schwere Kriminalität': [
-    // Gleiche Felder wie bei "Leichte Kriminalität"
-    { label: 'Name', id: 'name', type: 'text' },
-    { label: 'Alter', id: 'alter', type: 'number' },
-    { label: 'Geschlecht', id: 'geschlecht', type: 'text' },
-    { label: 'Haarfarbe', id: 'haarfarbe', type: 'text' },
-    { label: 'Job', id: 'job', type: 'text' },
-    { label: 'Wohnort', id: 'wohnort', type: 'text' },
-    { label: 'Auto-Kennzeichen', id: 'auto', type: 'text' },
-    { label: 'Geldstrafe', id: 'geldstrafe', type: 'text' },
-    { label: 'Hafteinheiten', id: 'hafteinheiten', type: 'text' },
-    { label: 'Gesetze gegen die verstoßen wurden', id: 'gesetze', type: 'textarea' },
-    { label: 'Unterschrift', id: 'unterschrift', type: 'text' },
-    { label: 'Datum', id: 'datum', type: 'date' }
+    { id: 'name', label: 'Name', type: 'text' },
+    { id: 'alter', label: 'Alter', type: 'number' },
+    { id: 'geschlecht', label: 'Geschlecht', type: 'text' },
+    { id: 'haarfarbe', label: 'Haarfarbe', type: 'text' },
+    { id: 'job', label: 'Job', type: 'text' },
+    { id: 'wohnort', label: 'Wohnort', type: 'text' },
+    { id: 'auto', label: 'Auto-Kennzeichen', type: 'text' },
+    { id: 'geldstrafe', label: 'Geldstrafe', type: 'text' },
+    { id: 'hafteinheiten', label: 'Hafteinheiten', type: 'text' },
+    { id: 'gesetze', label: 'Gesetze gegen die verstoßen wurden', type: 'textarea' },
+    { id: 'unterschrift', label: 'Unterschrift', type: 'text' },
+    { id: 'datum', label: 'Datum', type: 'date' }
   ]
 };
 
-// --- Funktion: Modal-Formular aufbauen ---
-function buildForm(category, data = {}) {
-  aktenForm.innerHTML = ''; // Reset form
+// --- Daten laden ---
+function loadData() {
+  const saved = localStorage.getItem('copnetData');
+  if (saved) {
+    copnetData = JSON.parse(saved);
+  }
+}
 
-  const fields = formFields[category] || [];
+// --- Daten speichern ---
+function saveData() {
+  localStorage.setItem('copnetData', JSON.stringify(copnetData));
+}
+
+// --- Formular bauen ---
+function buildForm(category) {
+  aktenForm.innerHTML = '';
+  const fields = formFields[category];
   fields.forEach(field => {
     const wrapper = document.createElement('div');
-    wrapper.style.marginBottom = '12px';
-
     const label = document.createElement('label');
-    label.textContent = field.label;
     label.htmlFor = field.id;
-    label.style.display = 'block';
-    label.style.fontWeight = '600';
-    label.style.marginBottom = '6px';
+    label.textContent = field.label;
 
     let input;
-    if(field.type === 'textarea') {
+    if (field.type === 'textarea') {
       input = document.createElement('textarea');
       input.rows = 3;
     } else {
@@ -108,60 +105,52 @@ function buildForm(category, data = {}) {
 
     input.id = field.id;
     input.name = field.id;
-    input.style.width = '100%';
-    input.style.padding = '10px';
-    input.style.border = '1.5px solid #cdd4e0';
-    input.style.borderRadius = '10px';
-    input.value = data[field.id] || '';
-
+    input.value = '';
+    input.required = (field.id === 'name');
     wrapper.appendChild(label);
     wrapper.appendChild(input);
     aktenForm.appendChild(wrapper);
   });
 }
 
-// --- Funktion: Akten anzeigen ---
+// --- Akten rendern ---
 function renderAkten() {
+  aktenList.innerHTML = '';
   const filterName = filterNameInput.value.toLowerCase();
   const filterCrime = filterCrimeSelect.value;
 
-  aktenList.innerHTML = '';
-
   copnetData.akten.forEach((akte, idx) => {
     const name = akte.name ? akte.name.toLowerCase() : '';
-    const crime = akte.category || '';
+    const crime = akte.category;
 
-    if(filterName && !name.includes(filterName)) return;
-    if(filterCrime && crime !== filterCrime) return;
+    if (filterName && !name.includes(filterName)) return;
+    if (filterCrime && crime !== filterCrime) return;
 
     const li = document.createElement('li');
 
-    if(crime === 'Vermerk') {
-      // Nur Name + Bemerkung anzeigen
+    if (crime === 'Vermerk') {
       li.textContent = `Name: ${akte.name}\nBemerkung: ${akte.bemerkung || ''}`;
     } else {
-      // Große Vorlage
-      let text = '';
-      text += `Name: ${akte.name}\n`;
-      text += `Alter: ${akte.alter}\n`;
-      text += `Geschlecht: ${akte.geschlecht}\n`;
-      text += `Haarfarbe: ${akte.haarfarbe}\n`;
-      text += `Job: ${akte.job}\n`;
-      text += `Wohnort: ${akte.wohnort}\n`;
-      text += `Auto-Kennzeichen: ${akte.auto}\n`;
-      text += `Geldstrafe: ${akte.geldstrafe}\n`;
-      text += `Hafteinheiten: ${akte.hafteinheiten}\n`;
-      text += `Gesetze gegen die verstoßen wurden:\n${akte.gesetze}\n`;
-      text += `Unterschrift: ${akte.unterschrift}\n`;
-      text += `Datum: ${akte.datum}\n`;
-      li.textContent = text;
+      li.textContent =
+        `Name: ${akte.name}\n` +
+        `Alter: ${akte.alter}\n` +
+        `Geschlecht: ${akte.geschlecht}\n` +
+        `Haarfarbe: ${akte.haarfarbe}\n` +
+        `Job: ${akte.job}\n` +
+        `Wohnort: ${akte.wohnort}\n` +
+        `Auto-Kennzeichen: ${akte.auto}\n` +
+        `Geldstrafe: ${akte.geldstrafe}\n` +
+        `Hafteinheiten: ${akte.hafteinheiten}\n` +
+        `Gesetze gegen die verstoßen wurden:\n${akte.gesetze}\n` +
+        `Unterschrift: ${akte.unterschrift}\n` +
+        `Datum: ${akte.datum}`;
     }
 
     aktenList.appendChild(li);
   });
 }
 
-// --- Modal Öffnen ---
+// --- Modal öffnen ---
 function openModal() {
   modal.classList.remove('hidden');
   crimeTypeSelect.value = 'Vermerk';
@@ -170,70 +159,76 @@ function openModal() {
   editIndex = null;
 }
 
-// --- Modal Schließen ---
+// --- Modal schließen ---
 function closeModal() {
   modal.classList.add('hidden');
   aktenForm.reset();
 }
 
-// --- Wenn Kategorie geändert wird, Form neu bauen ---
+// --- Kategorie ändert Formular ---
 crimeTypeSelect.addEventListener('change', () => {
   buildForm(crimeTypeSelect.value);
 });
 
 // --- Speichern ---
 saveBtn.addEventListener('click', () => {
-  // Werte aus Formular auslesen
   const category = crimeTypeSelect.value;
   const fields = formFields[category];
-
   let newEntry = { category };
-
-  // Prüfe alle Felder aus
   let valid = true;
+
   fields.forEach(field => {
     const val = aktenForm[field.id].value.trim();
-    if(field.id === 'name' && !val) valid = false; // Name Pflichtfeld
+    if (field.id === 'name' && !val) valid = false;
     newEntry[field.id] = val;
   });
 
-  if(!valid) {
-    alert('Bitte mindestens den Namen ausfüllen.');
+  if (!valid) {
+    alert('Bitte den Namen ausfüllen!');
     return;
   }
 
-  // Eintrag speichern
-  copnetData.akten.push(newEntry);
+  if (editIndex !== null) {
+    copnetData.akten[editIndex] = newEntry;
+  } else {
+    copnetData.akten.push(newEntry);
+  }
+
   saveData();
   renderAkten();
   closeModal();
 });
 
 // --- Abbrechen ---
-cancelBtn.addEventListener('click', closeModal);
+cancelBtn.addEventListener('click', () => {
+  closeModal();
+});
 
 // --- Filter Events ---
 filterNameInput.addEventListener('input', renderAkten);
 filterCrimeSelect.addEventListener('change', renderAkten);
 
-// --- Add Button ---
-addAkteBtn.addEventListener('click', openModal);
+// --- Add Akte Button ---
+addAkteBtn.addEventListener('click', () => {
+  openModal();
+});
 
-// --- Init ---
-loadData();
-renderAkten();
-
-
-// --- Navigation (einfach für deine Seite) ---
-document.querySelectorAll('nav ul li a').forEach(link => {
+// --- Navigation ---
+document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
-    document.querySelectorAll('nav ul li a').forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     link.classList.add('active');
 
-    const target = link.getAttribute('href').substring(1);
-    document.querySelectorAll('main > section').forEach(section => {
-      section.style.display = section.id === target ? 'block' : 'none';
+    document.querySelectorAll('.content-section').forEach(section => {
+      section.style.display = 'none';
     });
+
+    const target = link.getAttribute('href').substring(1);
+    document.getElementById(target).style.display = 'block';
   });
 });
+
+// --- Initialisierung ---
+loadData();
+renderAkten();
