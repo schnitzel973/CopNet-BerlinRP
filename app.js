@@ -1,118 +1,181 @@
-// Firebase-Konfiguration
-const firebaseConfig = {
-  apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
-  authDomain: "copnet-berlinrp.firebaseapp.com",
-  projectId: "copnet-berlinrp",
-  storageBucket: "copnet-berlinrp.firebasestorage.app",
-  messagingSenderId: "325379817013",
-  appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
-  measurementId: "G-N7Z1C6XNJ0"
-};
+// Navigation und Sektionen
+const navLinks = document.querySelectorAll('.sidebar-nav a');
+const sections = document.querySelectorAll('.content-section');
+const pageTitle = document.getElementById('page-title');
 
-// Firebase initialisieren
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
 
-// Elemente holen
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const loginBtn = document.getElementById("login-btn");
-const registerBtn = document.getElementById("register-btn");
-const authMessage = document.getElementById("auth-message");
+    // Aktives Menü
+    navLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
 
-const authSection = document.getElementById("auth-section");
-const loadoutSection = document.getElementById("loadout-section");
-
-const loadoutNameInput = document.getElementById("loadout-name");
-const loadoutWeaponsSelect = document.getElementById("loadout-weapons");
-const saveLoadoutBtn = document.getElementById("save-loadout-btn");
-const loadoutMessage = document.getElementById("loadout-message");
-const loadoutList = document.getElementById("loadout-list");
-
-// Benutzerstatus überwachen
-auth.onAuthStateChanged(user => {
-  if (user) {
-    authSection.style.display = "none";
-    loadoutSection.style.display = "block";
-    loadLoadouts(user.uid);
-  } else {
-    authSection.style.display = "block";
-    loadoutSection.style.display = "none";
-    loadoutList.innerHTML = "";
-  }
-});
-
-// Registrierung
-registerBtn.addEventListener("click", () => {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => authMessage.textContent = "Registrierung erfolgreich! Du kannst dich jetzt einloggen.")
-    .catch(error => authMessage.textContent = "Fehler: " + error.message);
-});
-
-// Login
-loginBtn.addEventListener("click", () => {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  auth.signInWithEmailAndPassword(email, password)
-    .catch(error => authMessage.textContent = "Fehler: " + error.message);
-});
-
-// Loadout speichern
-saveLoadoutBtn.addEventListener("click", () => {
-  const user = auth.currentUser;
-  if (!user) return;
-  const name = loadoutNameInput.value.trim();
-  const weapons = Array.from(loadoutWeaponsSelect.selectedOptions).map(o => o.value);
-
-  if (!name) {
-    loadoutMessage.textContent = "Bitte Loadout-Namen eingeben.";
-    return;
-  }
-  if (weapons.length === 0) {
-    loadoutMessage.textContent = "Bitte mindestens eine Waffe auswählen.";
-    return;
-  }
-
-  db.collection("loadouts").add({
-    uid: user.uid,
-    name: name,
-    weapons: weapons,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  })
-  .then(() => {
-    loadoutMessage.textContent = "Loadout gespeichert!";
-    loadoutNameInput.value = "";
-    loadoutWeaponsSelect.selectedIndex = -1;
-    loadLoadouts(user.uid);
-  })
-  .catch(err => loadoutMessage.textContent = "Fehler beim Speichern: " + err.message);
-});
-
-// Loadouts laden
-function loadLoadouts(uid) {
-  loadoutList.innerHTML = "Lade Loadouts...";
-  db.collection("loadouts")
-    .where("uid", "==", uid)
-    .orderBy("createdAt", "desc")
-    .get()
-    .then(snapshot => {
-      loadoutList.innerHTML = "";
-      if (snapshot.empty) {
-        loadoutList.textContent = "Keine Loadouts vorhanden.";
+    // Inhalt anzeigen
+    const target = link.dataset.section;
+    sections.forEach(sec => {
+      if (sec.id === target) {
+        sec.classList.add('active');
+        pageTitle.textContent = link.textContent.trim();
       } else {
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const div = document.createElement("div");
-          div.classList.add("loadout-item");
-          div.textContent = `${data.name} — Waffen: ${data.weapons.join(", ")}`;
-          loadoutList.appendChild(div);
-        });
+        sec.classList.remove('active');
       }
-    })
-    .catch(err => {
-      loadoutList.textContent = "Fehler beim Laden: " + err.message;
     });
+  });
+});
+
+// Dashboard Buttons auf Sektionen verlinken
+document.getElementById('open-fahndung-section').addEventListener('click', () => activateSection('fahndung'));
+document.getElementById('open-akten-section').addEventListener('click', () => activateSection('akten'));
+document.getElementById('open-straftaten-section').addEventListener('click', () => activateSection('straftaten'));
+document.getElementById('open-loadouts-section').addEventListener('click', () => activateSection('loadouts'));
+
+function activateSection(id) {
+  navLinks.forEach(l => {
+    l.classList.toggle('active', l.dataset.section === id);
+  });
+  sections.forEach(s => s.classList.toggle('active', s.id === id));
+  const activeLink = [...navLinks].find(l => l.dataset.section === id);
+  pageTitle.textContent = activeLink.textContent.trim();
 }
+
+// --- Fahndung Form & Liste ---
+const fahndungForm = document.getElementById('fahndung-form');
+const fahndungList = document.getElementById('fahndung-list');
+
+let fahndungen = JSON.parse(localStorage.getItem('fahndungen')) || [];
+
+function renderFahndungen() {
+  fahndungList.innerHTML = '';
+  if(fahndungen.length === 0) {
+    fahndungList.innerHTML = '<div>Keine Fahndungen vorhanden.</div>';
+    return;
+  }
+  fahndungen.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.textContent = `${f.name} - ${f.beschreibung}`;
+    div.title = 'Zum Löschen klicken';
+    div.style.cursor = 'pointer';
+    div.addEventListener('click', () => {
+      if(confirm(`Fahndung "${f.name}" löschen?`)) {
+        fahndungen.splice(i,1);
+        saveFahndungen();
+        renderFahndungen();
+      }
+    });
+    fahndungList.appendChild(div);
+  });
+}
+
+function saveFahndungen() {
+  localStorage.setItem('fahndungen', JSON.stringify(fahndungen));
+}
+
+fahndungForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('fahndung-name').value.trim();
+  const beschreibung = document.getElementById('fahndung-beschreibung').value.trim();
+  if(name) {
+    fahndungen.push({name, beschreibung});
+    saveFahndungen();
+    renderFahndungen();
+    fahndungForm.reset();
+  }
+});
+
+renderFahndungen();
+
+// --- Akten Form & Liste ---
+const aktenForm = document.getElementById('akten-form');
+const aktenList = document.getElementById('akten-list');
+
+let akten = JSON.parse(localStorage.getItem('akten')) || [];
+
+function renderAkten() {
+  aktenList.innerHTML = '';
+  if(akten.length === 0) {
+    aktenList.innerHTML = '<div>Keine Akten vorhanden.</div>';
+    return;
+  }
+  akten.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${a.titel}</strong>: ${a.inhalt}`;
+    div.title = 'Zum Löschen klicken';
+    div.style.cursor = 'pointer';
+    div.addEventListener('click', () => {
+      if(confirm(`Akte "${a.titel}" löschen?`)) {
+        akten.splice(i,1);
+        saveAkten();
+        renderAkten();
+      }
+    });
+    aktenList.appendChild(div);
+  });
+}
+
+function saveAkten() {
+  localStorage.setItem('akten', JSON.stringify(akten));
+}
+
+aktenForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const titel = document.getElementById('akten-titel').value.trim();
+  const inhalt = document.getElementById('akten-inhalt').value.trim();
+  if(titel) {
+    akten.push({titel, inhalt});
+    saveAkten();
+    renderAkten();
+    aktenForm.reset();
+  }
+});
+
+renderAkten();
+
+// --- Loadouts Form & Liste ---
+const loadoutForm = document.getElementById('loadout-form');
+const loadoutList = document.getElementById('loadout-list');
+
+let loadouts = JSON.parse(localStorage.getItem('loadouts')) || [];
+
+function renderLoadouts() {
+  loadoutList.innerHTML = '';
+  if(loadouts.length === 0) {
+    loadoutList.innerHTML = '<div>Keine Loadouts gespeichert.</div>';
+    return;
+  }
+  loadouts.forEach((l, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${l.name}</strong>: ${l.weapons.join(', ')}`;
+    div.title = 'Zum Löschen klicken';
+    div.style.cursor = 'pointer';
+    div.addEventListener('click', () => {
+      if(confirm(`Loadout "${l.name}" löschen?`)) {
+        loadouts.splice(i,1);
+        saveLoadouts();
+        renderLoadouts();
+      }
+    });
+    loadoutList.appendChild(div);
+  });
+}
+
+function saveLoadouts() {
+  localStorage.setItem('loadouts', JSON.stringify(loadouts));
+}
+
+loadoutForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('loadout-name').value.trim();
+  const selectedOptions = [...document.getElementById('loadout-weapons').selectedOptions];
+  const weapons = selectedOptions.map(opt => opt.value);
+  if(name && weapons.length > 0) {
+    loadouts.push({name, weapons});
+    saveLoadouts();
+    renderLoadouts();
+    loadoutForm.reset();
+  } else {
+    alert('Bitte Name und mindestens eine Waffe auswählen!');
+  }
+});
+
+renderLoadouts();
