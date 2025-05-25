@@ -2,91 +2,90 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CopNet BerlinRP</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <aside class="sidebar">
       <h2>CopNet</h2>
-      <div class="sidebar-search">
-        <input type="search" placeholder="Suchen..." />
-      </div>
       <nav>
         <ul>
-          <li data-page="startseite">Startseite</li>
-          <li data-page="informationen">Cop-Net Informationen</li>
-          <li data-page="akten">Akten-System</li>
-          <li data-page="fahndung">Aktuelle Fahndung</li>
-          <li data-page="berichte">Dienstberichte</li>
-          <li data-page="personal">Personal-Akten</li>
-          <li data-page="einstellungen">Einstellungen</li>
+          <li onclick="showPage('dashboard')">Startseite</li>
+          <li onclick="showPage('info')">Cop-Net Informationen</li>
+          <li onclick="showPage('akten')">Akten-System</li>
+          <li onclick="showPage('fahndung')">Aktuelle Fahndung</li>
+          <li onclick="showPage('berichte')">Dienstberichte</li>
+          <li onclick="showPage('personal')">Personal-Akten</li>
+          <li onclick="showPage('einstellungen')">Einstellungen</li>
         </ul>
       </nav>
     </aside>
-    <main class="main-content">
-      <section id="startseite" class="page active">
-        <h1>Willkommen bei CopNet BerlinRP</h1>
-        <p>Deine zentrale Informationsplattform für ER:LC.</p>
 
+    <main class="main-content">
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="page active">
+        <h1>Startseite</h1>
         <div class="dashboard-boxes">
-          <div class="dashboard-box" id="aktenCountBox">
-            <h3>Akten</h3>
-            <p><span id="aktenCount">0</span> gespeichert</p>
-          </div>
-          <div class="dashboard-box" id="fahndungCountBox">
-            <h3>Fahndungen</h3>
-            <p><span id="fahndungCount">0</span> aktiv</p>
-          </div>
+          <div class="dashboard-box" id="aktenCount">📂 Akten: 0</div>
+          <div class="dashboard-box" id="fahndungCount">🚔 Fahndungen: 0</div>
         </div>
       </section>
 
+      <!-- AKTEN -->
       <section id="akten" class="page">
-        <h2>Akten-System</h2>
+        <h1>Akten-System</h1>
         <form id="aktenForm">
           <label>
-            Kategorie:
-            <select id="aktenKategorie">
+            Kategorie auswählen:
+            <select id="aktenTyp" onchange="toggleAktenFields()">
               <option value="vermerk">Vermerk</option>
               <option value="leicht">Leichte Kriminalität</option>
               <option value="mittel">Mittlere Kriminalität</option>
               <option value="schwer">Schwere Kriminalität</option>
             </select>
           </label>
-          <div id="aktenDetails"></div>
-          <button type="submit">Einreichen</button>
+
+          <div id="vermerkFields">
+            <label>Name:
+              <input type="text" id="vermerkName" />
+            </label>
+            <label>Bemerkung:
+              <textarea id="vermerkText"></textarea>
+            </label>
+          </div>
+
+          <div id="akteFields" style="display:none;">
+            <label>Name:<input type="text" id="akteName"></label>
+            <label>Alter:<input type="number" id="akteAlter"></label>
+            <label>Geschlecht:<input type="text" id="akteGeschlecht"></label>
+            <label>Haarfarbe:<input type="text" id="akteHaarfarbe"></label>
+            <label>Job:<input type="text" id="akteJob"></label>
+            <label>Wohnort:<input type="text" id="akteWohnort"></label>
+            <label>Auto-Kennzeichen:<input type="text" id="akteKennzeichen"></label>
+            <label>Geldstrafe (€):<input type="number" id="akteStrafe"></label>
+            <label>Hafteinheiten:<input type="number" id="akteHaft"></label>
+            <label>Gesetze (mit §§):<textarea id="akteGesetze"></textarea></label>
+            <label>Unterschrift:<input type="text" id="akteUnterschrift"></label>
+            <label>Datum:<input type="date" id="akteDatum"></label>
+          </div>
+
+          <button type="button" onclick="addAkte()">Akte erstellen</button>
         </form>
+
         <div id="aktenList"></div>
       </section>
 
-      <section id="informationen" class="page">
-        <h2>Cop-Net Informationen</h2>
-        <p>Hier können Infos zu Abläufen, Richtlinien und mehr stehen.</p>
-      </section>
-
-      <section id="fahndung" class="page">
-        <h2>Aktuelle Fahndung</h2>
-        <p>Liste aktiver Fahndungen wird hier erscheinen.</p>
-      </section>
-
-      <section id="berichte" class="page">
-        <h2>Dienstberichte</h2>
-        <p>Berichte von Einsätzen und Schichten werden hier verwaltet.</p>
-      </section>
-
-      <section id="personal" class="page">
-        <h2>Personal-Akten</h2>
-        <p>Verwaltung der Beamtenprofile.</p>
-      </section>
-
-      <section id="einstellungen" class="page">
-        <h2>Einstellungen</h2>
-        <p>Anpassungsmöglichkeiten für das System.</p>
-      </section>
+      <!-- Weitere Seiten -->
+      <section id="info" class="page"><h1>CopNet Informationen</h1></section>
+      <section id="fahndung" class="page"><h1>Aktuelle Fahndung</h1></section>
+      <section id="berichte" class="page"><h1>Dienstberichte</h1></section>
+      <section id="personal" class="page"><h1>Personal-Akten</h1></section>
+      <section id="einstellungen" class="page"><h1>Einstellungen</h1></section>
     </main>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
