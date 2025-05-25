@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Akten System - Polizei Netzwerk</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f9fafb;
+    margin: 0; padding: 20px;
+    color: #222;
+  }
+  h1 {
+    text-align: center;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  label {
+    font-weight: bold;
+  }
+  input[type=text], input[type=date], input[type=tel], select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .row > div {
+    flex: 1;
+    min-width: 140px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  button {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    margin-right: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.25s ease;
+  }
+  button:hover {
+    background-color: #1a5276;
+  }
+  #aktenListe {
+    margin-top: 30px;
+  }
+  .akte-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .akte-info {
+    flex: 1 1 60%;
+  }
+  .akte-actions button {
+    margin-left: 5px;
+  }
+  #photoPreview {
+    max-width: 120px;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: none;
+  }
+  #filterInputs {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #filterInputs > div {
+    flex: 1;
+    min-width: 180px;
+  }
+  .log-entry {
+    background: #eef6fc;
+    border-left: 4px solid #2980b9;
+    padding: 8px 12px;
+    margin: 5px 0;
+    font-size: 13px;
+    border-radius: 3px;
+  }
+  .log-container {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Akten System</h1>
+
+  <!-- Schritt 1: Titel + Akte anlegen -->
+  <div id="createAkteStep">
+    <label for="akteTitel">Akten Titel (Name):</label>
+    <input type="text" id="akteTitel" placeholder="Titel der Akte eingeben" />
+    <button id="btnCreateAkte">Akte anlegen</button>
+  </div>
+
+  <!-- Schritt 2: Akte erweitern -->
+  <div id="editAkteStep" style="display:none;">
+    <h2>Akte erweitern: <span id="aktTitelAnzeigen"></span> (ID: <span id="aktIdAnzeigen"></span>)</h2>
+    <div class="row">
+      <div>
+        <label for="vorname">Vorname</label>
+        <input type="text" id="vorname" />
+      </div>
+      <div>
+        <label for="nachname">Nachname</label>
+        <input type="text" id="nachname" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="geschlecht">Geschlecht</label>
+        <select id="geschlecht">
+          <option value="">-- Bitte wählen --</option>
+          <option value="männlich">Männlich</option>
+          <option value="weiblich">Weiblich</option>
+          <option value="divers">Divers</option>
+        </select>
+      </div>
+      <div>
+        <label for="geburtsdatum">Geburtsdatum</label>
+        <input type="date" id="geburtsdatum" />
+      </div>
+      <div>
+        <label for="telefonnummer">Telefonnummer</label>
+        <input type="tel" id="telefonnummer" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="groesse">Größe (cm)</label>
+        <input type="number" id="groesse" min="30" max="300" />
+      </div>
+      <div>
+        <label for="augenfarbe">Augenfarbe</label>
+        <input type="text" id="augenfarbe" />
+      </div>
+      <div>
+        <label for="haarfarbe">Haarfarbe</label>
+        <input type="text" id="haarfarbe" />
+      </div>
+    </div>
+    <div>
+      <label for="sonstiges">Sonstiges</label>
+      <textarea id="sonstiges" placeholder="Weitere Informationen"></textarea>
+    </div>
+
+    <hr style="margin: 20px 0;" />
+
+    <!-- Straftat / Vermerk Auswahl -->
+    <label for="eintragTyp">Eintrag hinzufügen:</label>
+    <select id="eintragTyp">
+      <option value="">-- auswählen --</option>
+      <option value="straftat">Straftat</option>
+      <option value="vermerk">Vermerk</option>
+    </select>
+
+    <div id="straftatBereich" style="display:none; margin-top:10px;">
+      <label for="straftatText">Straftat Beschreibung:</label>
+      <textarea id="straftatText"></textarea>
+    </div>
+
+    <div id="vermerkBereich" style="display:none; margin-top:10px;">
+      <label for="vermerkText">Vermerk Beschreibung:</label>
+      <textarea id="vermerkText"></textarea>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label for="fotoInput">Foto hochladen:</label>
+      <input type="file" id="fotoInput" accept="image/*" />
+      <img id="photoPreview" alt="Foto Vorschau" />
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button id="btnAddEntry">Eintrag speichern</button>
+      <button id="btnFertig">Fertig</button>
+      <button id="btnAbbrechen">Abbrechen</button>
+    </div>
+
+    <!-- Log Verlauf -->
+    <h3>Bearbeitungsverlauf</h3>
+    <div class="log-container" id="logContainer"></div>
+  </div>
+
+  <hr style="margin: 30px 0;" />
+
+  <!-- Filter Bereich -->
+  <div id="filterInputs">
+    <div>
+      <label for="filterName">Nach Name filtern:</label>
+      <input type="text" id="filterName" placeholder="Vor- oder Nachname suchen" />
+    </div>
+    <div>
+      <label for="filterErsteller">Nach Ersteller filtern:</label>
+      <input type="text" id="filterErsteller" placeholder="Erstellername suchen" />
+    </div>
+  </div>
+
+  <!-- Akten Liste -->
+  <div id="aktenListe">
+    <h2>Gespeicherte Akten</h2>
+    <div id="aktenContainer"></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Config & Init
+  const firebaseConfig = {
+    apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
+    authDomain: "copnet-berlinrp.firebaseapp.com",
+    projectId: "copnet-berlinrp",
+    storageBucket: "copnet-berlinrp.appspot.com",
+    messagingSenderId: "325379817013",
+    appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
+    measurementId: "G-N7Z1C6XNJ0"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Dummy Benutzername (normalerweise aus Session / Auth)
+  // Du kannst hier die Logik anpassen, wie du Usernamen bekommst.
+  const currentUser = sessionStorage.getItem("username") || "Unbekannt";
+
+  // Elemente
+  const createStep = document.getElementById("createAkteStep");
+  const editStep = document.getElementById("editAkteStep");
+  const akteTitelInput = document.getElementById("akteTitel");
+  const btnCreateAkte = document.getElementById("btnCreateAkte");
+  const aktTitelAnzeigen = document.getElementById("aktTitelAnzeigen");
+  const aktIdAnzeigen = document.getElementById("aktIdAnzeigen");
+
+  const vornameInput = document.getElementById("vorname");
+  const nachnameInput = document.getElementById("nachname");
+  const geschlechtInput = document.getElementById("geschlecht");
+  const geburtsdatumInput = document.getElementById("geburtsdatum");
+  const telefonnummerInput = document.getElementById("telefonnummer");
+  const groesseInput = document.getElementById("groesse");
+  const augenfarbeInput = document.getElementById("augenfarbe");
+  const haarfarbeInput = document.getElementById("haarfarbe");
+  const sonstigesInput = document.getElementById("sonstiges");
+
+  const eintragTypSelect = document.getElementById("eintragTyp");
+  const straftatBereich = document.getElementById("straftatBereich");
+  const straftatText = document.getElementById("straftatText");
+  const vermerkBereich = document.getElementById("vermerkBereich");
+  const vermerkText = document.getElementById("vermerkText");
+
+  const fotoInput = document.getElementById("fotoInput");
+  const photoPreview = document.getElementById("photoPreview");
+
+  const btnAddEntry = document.getElementById("btnAddEntry");
+  const btnFertig = document.getElementById("btnFertig");
+  const btnAbbrechen = document.getElementById("btnAbbrechen");
+
+  const logContainer = document.getElementById("logContainer");
+
+  const filterNameInput = document.getElementById("filterName");
+  const filterErstellerInput = document.getElementById("filterErsteller");
+
+  const aktenContainer = document.getElementById("aktenContainer");
+
+  let currentAkteId = null;
+  let currentPhotoDataURL = null; // Foto Base64
+  let aktenDaten = []; // Alle Akten aus Firestore
+
+  // Helper: Random ID 1-10000
+  function generateRandomId() {
+    return Math.floor(Math.random() * 10000) + 1;
+  }
+
+  // Bild Upload - Foto anzeigen als Vorschau & Base64 speichern
+  fotoInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      currentPhotoDataURL = e.target.result;
+      photoPreview.src = currentPhotoDataURL;
+      photoPreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Dropdown Eintrag Typ
+  eintragTypSelect.addEventListener("change", () => {
+    const val = eintragTypSelect.value;
+    straftatBereich.style.display = val === "straftat" ? "block" : "none";
+    vermerkBereich.style.display = val === "vermerk" ? "block" : "none";
+  });
+
+  // Akte anlegen
+  btnCreateAkte.addEventListener("click", async () => {
+    const titel = akteTitelInput.value.trim();
+    if (!titel) {
+      alert("Bitte einen Titel eingeben.");
+      return;
+    }
+    // Neue ID vergeben und Akte in Firestore speichern
+    let newId = generateRandomId();
+    // Sicherstellen, dass die ID noch nicht vergeben ist:
+    while (aktenDaten.find(a => a.id === newId.toString())) {
+      newId = generateRandomId();
+    }
+
+    const neueAkte = {
+      id: newId.toString(),
+      titel,
+      ersteller: currentUser,
+      vorname: "",
+      nachname: "",
+      geschlecht: "",
+      geburtsdatum: "",
+      telefonnummer: "",
+      groesse: "",
+      augenfarbe: "",
+      haarfarbe: "",
+      sonstiges: "",
+      eintraege: [], // Straftaten/Vermerke
+      foto: null,
+      logs: [{
+        zeit: new Date().toISOString(),
+        user: currentUser,
+        aktion: "Akte erstellt"
+      }]
+    };
+
+    try {
+      await db.collection("akten").doc(neueAkte.id).set(neueAkte);
+      aktenDaten.push(neueAkte);
+      currentAkteId = neueAkte.id;
+      showEditStep(neueAkte);
+      akteTitelInput.value = "";
+      loadAkten(); // Aktualisieren
+      alert("Akte wurde erfolgreich angelegt.");
+    } catch (error) {
+      console.error("Fehler beim Anlegen der Akte:", error);
+      alert("Fehler beim Anlegen der Akte.");
+    }
+  });
+
+  // Zeige erweiterten Bearbeitungsbereich
+  function showEditStep(akte) {
+    createStep.style.display = "none";
+    editStep.style.display = "block";
+    aktTitelAnzeigen.textContent = akte.titel;
+    aktIdAnzeigen.textContent = akte.id;
+
+    vornameInput.value = akte.vorname || "";
+    nachnameInput.value = akte.nachname || "";
+    geschlechtInput.value = akte.geschlecht || "";
+    geburtsdatumInput.value = akte.geburtsdatum || "";
+    telefonnummerInput.value = akte.telefonnummer || "";
+    groesseInput.value = akte.groesse || "";
+    augenfarbeInput.value = akte.augenfarbe || "";
+    haarfarbeInput.value = akte.haarfarbe || "";
+    sonstigesInput.value = akte.sonstiges || "";
+
+    if (akte.foto) {
+      photoPreview.src = akte.foto;
+      photoPreview.style.display = "block";
+      currentPhotoDataURL = akte.foto;
+    } else {
+      photoPreview.style.display = "none";
+      currentPhotoDataURL = null;
+    }
+
+    eintragTypSelect.value = "";
+    straftatBereich.style.display = "none";
+    vermerkBereich.style.display = "none";
+    straftatText.value = "";
+    vermerkText.value = "";
+
+    // Logs anzeigen
+    renderLogs(akte.logs || []);
+  }
+
+  // Logs anzeigen
+  function renderLogs(logs) {
+    logContainer.innerHTML = "";
+    if (!logs || logs.length === 0) {
+      logContainer.innerHTML = "<i>Keine Einträge vorhanden.</i>";
+      return;
+    }
+    logs.forEach(log => {
+      const div = document.createElement("div");
+      div.classList.add("log-entry");
+      const zeit = new Date(log.zeit).toLocaleString();
+      div.textContent = `${zeit} - ${log.user}: ${log.aktion}`;
+      logContainer.appendChild(div);
+    });
+  }
+
+  // Speichere Eintrag (Straftat / Vermerk + Akte Daten)
+  btnAddEntry.addEventListener("click", async () => {
+    if (!currentAkteId) return;
+
+    const eintragTyp = eintragTypSelect.value;
+    if (!eintragTyp) {
+      alert("Bitte einen Eintrag-Typ auswählen.");
+      return;
+    }
+
+    let eintragText = "";
+    if (eintragTyp === "straftat") {
+      eintragText = straftatText.value.trim();
+      if (!eintragText) {
+        alert("Bitte eine Straftat-Beschreibung eingeben.");
+        return;
+      }
+    } else if (eintragTyp === "vermerk") {
+      eintragText = vermerkText.value.trim();
+      if (!eintragText) {
+        alert("Bitte eine Vermerk-Beschreibung eingeben.");
+        return;
+      }
+    }
+
+    // Holen der aktuellen Akte
+    const docRef = db.collection("akten").doc(currentAkteId);
+    const docSnap = await docRef.get();
+    if (!docSnap.exists) {
+      alert("Die Akte existiert nicht mehr.");
+      return;
+    }
+    const akte = docSnap.data();
+
+    // Aktualisiere Akte mit aktuellen Feldern
+    akte.vorname = vornameInput.value.trim();
+    akte.nachname = nachnameInput.value.trim();
+    akte.geschlecht = geschlechtInput.value;
+    akte.geburtsdatum = geburtsdatumInput.value;
+    akte.telefonnummer = telefonnummerInput.value.trim();
+    akte.groesse = groesseInput.value;
+    akte.augenfarbe = augenfarbeInput.value.trim();
+    akte.haarfarbe = haarfarbeInput.value.trim();
+    akte.sonstiges = sonstigesInput.value.trim();
+    akte.foto = currentPhotoDataURL;
+
+    // Neuen Eintrag hinzufügen
+    akte.eintraege.push({
+      typ: eintragTyp,
+      text: eintragText,
+      zeit: new Date().toISOString(),
+      user: currentUser,
+    });
+
+    // Log hinzufügen
+    akte.logs = akte.logs || [];
+    akte.logs.push({
+      zeit: new Date().toISOString(),
+      user: currentUser,
+      aktion: `Eintrag (${eintragTyp}) hinzugefügt: ${eintragText.substring(0, 30)}${eintragText.length > 30 ? "..." : ""}`
+    });
+
+    try {
+      await docRef.set(akte);
+      alert("Eintrag wurde gespeichert.");
+      showEditStep(akte);
+      loadAkten();
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+      alert("Fehler beim Speichern der Akte.");
+    }
+  });
+
+  // Fertig Button - Zurück zum Anlegen + Liste laden
+  btnFertig.addEventListener("click", () => {
+    resetForm();
+  });
+
+  // Abbrechen Button - Zurück zum Anlegen + Liste laden
+  btnAbbrechen.addEventListener("click", () => {
+    resetForm();
+  });
+
+  // Reset & zurück zum Start
+  function resetForm() {
+    createStep.style.display = "block";
+    editStep.style.display = "none";
+    currentAkteId = null;
+    currentPhotoDataURL = null;
+
+    // Felder leeren
+    aktTitelAnzeigen.textContent = "";
+    aktIdAnzeigen.textContent = "";
+    akteTitelInput.value = "";
+
+    vornameInput.value = "";
+    nachnameInput.value = "";
+    geschlechtInput.value = "";
+    geburtsdatumInput.value = "";
+    telefonnummerInput.value = "";
+    groesseInput.value = "";
+    augenfarbeInput.value = "";
+    haarfarbeInput.value = "";
+    sonstigesInput.value = "";
+    eintragTypSelect.value = "";
+    straftatText.value = "";
+    vermerkText.value = "";
+    photoPreview.style.display = "none";
+    fotoInput.value = "";
+
+    logContainer.innerHTML = "";
+
+    loadAkten();
+  }
+
+  // Lade alle Akten aus Firestore und zeige sie in der Liste an
+  async function loadAkten() {
+    try {
+      const snapshot = await db.collection("akten").get();
+      aktenDaten = snapshot.docs.map(doc => doc.data());
+      renderAktenListe();
+    } catch (error) {
+      console.error("Fehler beim Laden der Akten:", error);
+    }
+  }
+
+  // Filter & Render Akten Liste
+  function renderAktenListe() {
+    const filterName = filterNameInput.value.toLowerCase();
+    const filterErsteller = filterErstellerInput.value.toLowerCase();
+
+    // Filter anwenden
+    let gefilterteAkten = aktenDaten.filter(akte => {
+      const nameCheck = (akte.vorname + " " + akte.nachname + " " + akte.titel).toLowerCase();
+      const erstellerCheck = (akte.ersteller || "").toLowerCase();
+      return nameCheck.includes(filterName) && erstellerCheck.includes(filterErsteller);
+    });
+
+    aktenContainer.innerHTML = "";
+    if (gefilterteAkten.length === 0) {
+      aktenContainer.innerHTML = "<i>Keine Akten gefunden.</i>";
+      return;
+    }
+
+    gefilterteAkten.forEach(akte => {
+      const div = document.createElement("div");
+      div.classList.add("akte-item");
+
+      const infoDiv = document.createElement("div");
+      infoDiv.classList.add("akte-info");
+      infoDiv.innerHTML = `<strong>${akte.titel}</strong> (ID: ${akte.id})<br>
+        Ersteller: ${akte.ersteller || "Unbekannt"}<br>
+        Name: ${akte.vorname || "-"} ${akte.nachname || "-"}<br>
+        Einträge: ${akte.eintraege.length}`;
+
+      const actionsDiv = document.createElement("div");
+      actionsDiv.classList.add("akte-actions");
+
+      const btnBearbeiten = document.createElement("button");
+      btnBearbeiten.textContent = "Bearbeiten";
+      btnBearbeiten.addEventListener("click", () => {
+        currentAkteId = akte.id;
+        showEditStep(akte);
+      });
+
+      const btnLoeschen = document.createElement("button");
+      btnLoeschen.textContent = "Löschen";
+      btnLoeschen.style.backgroundColor = "#c0392b";
+      btnLoeschen.addEventListener("click", async () => {
+        if (confirm(`Akte "${akte.titel}" wirklich löschen?`)) {
+          try {
+            await db.collection("akten").doc(akte.id).delete();
+            alert("Akte gelöscht.");
+            loadAkten();
+            if (currentAkteId === akte.id) resetForm();
+          } catch (error) {
+            console.error("Fehler beim Löschen:", error);
+            alert("Fehler beim Löschen der Akte.");
+          }
+        }
+      });
+
+      actionsDiv.appendChild(btnBearbeiten);
+      actionsDiv.appendChild(btnLoeschen);
+
+      div.appendChild(infoDiv);
+      div.appendChild(actionsDiv);
+
+      aktenContainer.appendChild(div);
+    });
+  }
+
+  // Filter-Input Events
+  filterNameInput.addEventListener("input", renderAktenListe);
+  filterErstellerInput.addEventListener("input", renderAktenListe);
+
+  // Initial laden
+  loadAkten();
+</script>
+</body>
+</html>
