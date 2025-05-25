@@ -13,6 +13,10 @@
     --sidebar-bg-light: #fff;
     --sidebar-bg-dark: #1e1e1e;
     --primary-color: #2980b9;
+    --card-bg-light: #fff;
+    --card-bg-dark: #2b2b2b;
+    --button-bg: #2980b9;
+    --button-bg-hover: #1a5276;
   }
   body {
     margin: 0;
@@ -80,7 +84,7 @@
   }
   .toggle-btn {
     cursor: pointer;
-    background-color: var(--primary-color);
+    background-color: var(--button-bg);
     border: none;
     color: white;
     padding: 0.5rem 1rem;
@@ -89,7 +93,7 @@
     transition: background-color 0.2s;
   }
   .toggle-btn:hover {
-    background-color: #1a5276;
+    background-color: var(--button-bg-hover);
   }
   /* Dashboard Grid & Cards */
   .dashboard-grid {
@@ -98,7 +102,7 @@
     gap: 1.5rem;
   }
   .card {
-    background: white;
+    background: var(--card-bg-light);
     color: var(--text-light);
     border-radius: 10px;
     padding: 1.5rem;
@@ -106,7 +110,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   body.dark .card {
-    background: #2b2b2b;
+    background: var(--card-bg-dark);
     color: var(--text-dark);
   }
   .card:hover {
@@ -133,6 +137,64 @@
     color: #cc0000;
     font-weight: 600;
   }
+  /* Neue Styles für Vorlagen */
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+  .template-card {
+    background: var(--card-bg-light);
+    color: var(--text-light);
+    border-radius: 15px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  body.dark .template-card {
+    background: var(--card-bg-dark);
+    color: var(--text-dark);
+  }
+  .template-card:hover {
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  }
+  .template-card h3 {
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+  .template-text {
+    flex-grow: 1;
+    white-space: pre-line;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+  }
+  .copy-btn {
+    align-self: flex-start;
+    background-color: var(--button-bg);
+    border: none;
+    color: white;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    user-select: none;
+  }
+  .copy-btn:hover {
+    background-color: var(--button-bg-hover);
+  }
+  /* Responsive Sidebar */
   @media (max-width: 768px) {
     .sidebar {
       width: 60px;
@@ -173,6 +235,7 @@
       <li data-label="Fahndungen" id="menu-fahndungen">Fahndungen</li>
       <li data-label="Fahrzeuge" id="menu-fahrzeuge">Fahrzeuge</li>
       <li data-label="Status" id="menu-status">Status</li>
+      <li data-label="Vorlagen" id="menu-vorlagen">Vorlagen</li> <!-- NEU -->
       <li data-label="Einstellungen" id="menu-settings" class="admin-only">Einstellungen</li>
       <li data-label="Logout" id="menu-logout">Logout</li>
     </ul>
@@ -233,6 +296,7 @@
     const menuStatus = document.getElementById("menu-status");
     const menuSettings = document.getElementById("menu-settings");
     const menuLogout = document.getElementById("menu-logout");
+    const menuVorlagen = document.getElementById("menu-vorlagen"); // NEU
 
     // Funktion zum Laden des Dashboards mit Live-Statistiken
     function loadDashboard() {
@@ -256,81 +320,65 @@
       `;
     }
 
+    // Vorlagen HTML (schönes modernes Design)
+    function loadVorlagen() {
+      content.innerHTML = `
+        <h2>📑 Vorlagen</h2>
+        <div class="templates-grid">
+          <div class="template-card">
+            <h3>Schusscall der Polizei Berlin</h3>
+            <p id="vorlage1" class="template-text">-zw- Polizei Berlin!! Legen sie ihre Waffe auf den Boden und kommen sie langsam mit erhobenen Händen auf mich zu! Sollten sie dies nicht tun muss ich auf sie schießen!</p>
+            <button class="copy-btn" onclick="copyText('vorlage1')">Kopieren</button>
+          </div>
+          <div class="template-card">
+            <h3>Rechte zum Vorlesen für Verdächtige</h3>
+            <p id="vorlage2" class="template-text">Sie haben das Recht zu schweigen, alles was sie sagen kann und wird vor Gericht gegen sie verwendet. Sie haben das Recht auf einen Rechtsbeistand, können sie sich keinen leisten, dann wird ihnen einer vom Staat gestellt. Wenn kein Anwalt oder Richter im Staat sein sollte, können sie sich Selbstverteidigen oder ein Exekutivbeamter kann die Judikative übernehmen. Wenn sie die Rechte verstanden haben dann antworten sie mit "Ja", wenn sie ihre Rechte nicht verstanden haben antworten sie mit "Nein". Aber ich Belehre sie hiermit dass, wenn ich ihnen die Rechte 3-mal vorgelesen habe dass sie als Verstanden gelten.</p>
+            <button class="copy-btn" onclick="copyText('vorlage2')">Kopieren</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Copy to clipboard Funktion
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Vorlage kopiert!");
+      }).catch(() => {
+        alert("Fehler beim Kopieren!");
+      });
+    }
+
+    // Event Listener für Menüs
     menuDashboard.addEventListener("click", () => {
       loadDashboard();
     });
-
     menuAkten.addEventListener("click", () => {
       content.innerHTML = "<h2>Akten System</h2><p>Aktenverwaltung kommt hier hin.</p>";
     });
-
     menuFahndungen.addEventListener("click", () => {
       content.innerHTML = "<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>";
     });
-
     menuFahrzeuge.addEventListener("click", () => {
       content.innerHTML = "<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>";
     });
-
     menuStatus.addEventListener("click", () => {
       content.innerHTML = "<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>";
     });
-
     menuSettings.addEventListener("click", () => {
       content.innerHTML = "<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>";
     });
-
     menuLogout.addEventListener("click", () => {
       sessionStorage.clear();
       window.location.href = "index.html"; // Zurück zur Login-Seite
     });
+    menuVorlagen.addEventListener("click", () => {
+      loadVorlagen();
+    });
 
-    // Beim Laden der Seite Dashboard direkt anzeigen
+    // Initiales Laden des Dashboards
     loadDashboard();
   </script>
-<section class="mb-8">
-  <h2 class="text-2xl font-bold mb-4">📑 Vorlagen</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-    <!-- Vorlage: Schusscall der Polizei Berlin -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 relative">
-      <h3 class="text-xl font-semibold mb-2">🚨 Schusscall der Polizei Berlin</h3>
-      <p id="vorlage1" class="text-gray-700 mb-4">
-        -zw- Polizei Berlin!! Legen sie ihre Waffe auf den Boden und kommen sie langsam mit erhobenen Händen auf mich zu!
-        Sollten sie dies nicht tun muss ich auf sie schießen!
-      </p>
-      <button onclick="copyText('vorlage1')" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded-lg">
-        📋 Kopieren
-      </button>
-    </div>
-
-    <!-- Vorlage: Rechte zum Vorlesen für Verdächtige -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 relative">
-      <h3 class="text-xl font-semibold mb-2">⚖️ Rechte zum Vorlesen für Verdächtige</h3>
-      <p id="vorlage2" class="text-gray-700 mb-4">
-        Sie haben das Recht zu schweigen, alles was sie sagen kann und wird vor Gericht gegen sie verwendet.
-        Sie haben das Recht auf einen Rechtsbeistand, können sie sich keinen leisten, dann wird ihnen einer vom Staat gestellt.
-        Wenn kein Anwalt oder Richter im Staat sein sollte, können sie sich selbst verteidigen oder ein Exekutivbeamter kann die Judikative übernehmen.
-        Wenn sie die Rechte verstanden haben dann antworten sie mit "Ja", wenn sie ihre Rechte nicht verstanden haben antworten sie mit "Nein".
-        Aber ich belehre sie hiermit, dass wenn ich ihnen die Rechte 3-mal vorgelesen habe, dass sie als verstanden gelten.
-      </p>
-      <button onclick="copyText('vorlage2')" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded-lg">
-        📋 Kopieren
-      </button>
-    </div>
-
-  </div>
-</section>
-
-<script>
-  function copyText(id) {
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Vorlage kopiert!");
-    });
-  }
-</script>
 
 </body>
 </html>
-
