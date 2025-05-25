@@ -2,147 +2,91 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CopNet BerlinRP - Akten System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CopNet BerlinRP</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <nav class="sidebar" role="navigation" aria-label="Hauptnavigation">
-      <ul class="sidebar-list">
-        <li class="sidebar-item active" data-section="dashboard" tabindex="0" aria-current="page">Startseite</li>
-        <li class="sidebar-item" data-section="info" tabindex="-1">Cop-Net Informationen</li>
-        <li class="sidebar-item" data-section="akten" tabindex="-1">Akten-System</li>
-        <li class="sidebar-item" data-section="fahndung" tabindex="-1">Aktuelle Fahndung</li>
-        <li class="sidebar-item" data-section="dienstberichte" tabindex="-1">Dienstberichte</li>
-        <li class="sidebar-item" data-section="personal" tabindex="-1">Personal-Akten</li>
-        <li class="sidebar-item" data-section="settings" tabindex="-1">Einstellungen</li>
-      </ul>
-    </nav>
-
+    <aside class="sidebar">
+      <h2>CopNet</h2>
+      <div class="sidebar-search">
+        <input type="search" placeholder="Suchen..." />
+      </div>
+      <nav>
+        <ul>
+          <li data-page="startseite">Startseite</li>
+          <li data-page="informationen">Cop-Net Informationen</li>
+          <li data-page="akten">Akten-System</li>
+          <li data-page="fahndung">Aktuelle Fahndung</li>
+          <li data-page="berichte">Dienstberichte</li>
+          <li data-page="personal">Personal-Akten</li>
+          <li data-page="einstellungen">Einstellungen</li>
+        </ul>
+      </nav>
+    </aside>
     <main class="main-content">
-      <!-- Dashboard -->
-      <section id="dashboard" class="content-section active" role="region" aria-label="Startseite">
-        <h1>Willkommen beim CopNet BerlinRP</h1>
-        <p>Hier findest du alle wichtigen Informationen und Funktionen.</p>
-      </section>
+      <section id="startseite" class="page active">
+        <h1>Willkommen bei CopNet BerlinRP</h1>
+        <p>Deine zentrale Informationsplattform für ER:LC.</p>
 
-      <!-- Info -->
-      <section id="info" class="content-section" role="region" aria-label="Cop-Net Informationen">
-        <h1>Cop-Net Informationen</h1>
-        <p>Informationen über das CopNet System und Updates.</p>
-      </section>
-
-      <!-- Akten-System -->
-      <section id="akten" class="content-section" role="region" aria-label="Akten-System">
-        <h1>Akten-System</h1>
-
-        <div class="akten-filters">
-          <input type="text" id="akten-filter-name" placeholder="Name des Verdächtigen filtern" aria-label="Name filtern" />
-          <select id="akten-filter-kriminalitaet" aria-label="Kriminalitätsart filtern">
-            <option value="alle">Alle</option>
-            <option value="leicht">Leichte Kriminalität</option>
-            <option value="mittel">Mittlere Kriminalität</option>
-            <option value="schwer">Schwere Kriminalität</option>
-            <option value="vermerk">Vermerk</option>
-          </select>
-          <button id="akten-filter-reset" aria-label="Filter zurücksetzen">Zurücksetzen</button>
+        <div class="dashboard-boxes">
+          <div class="dashboard-box" id="aktenCountBox">
+            <h3>Akten</h3>
+            <p><span id="aktenCount">0</span> gespeichert</p>
+          </div>
+          <div class="dashboard-box" id="fahndungCountBox">
+            <h3>Fahndungen</h3>
+            <p><span id="fahndungCount">0</span> aktiv</p>
+          </div>
         </div>
-
-        <div id="akten-list" class="akten-list" tabindex="0" aria-live="polite" aria-label="Liste der Akten">
-          <!-- Akten werden hier dynamisch eingefügt -->
-        </div>
-
-        <button id="akten-neu-btn" class="btn-primary" aria-haspopup="dialog" aria-controls="akten-modal">Neue Akte erstellen</button>
       </section>
 
-      <!-- Fahndung -->
-      <section id="fahndung" class="content-section" role="region" aria-label="Aktuelle Fahndung">
-        <h1>Aktuelle Fahndung</h1>
-        <p>Hier werden aktuelle Fahndungen angezeigt (Coming Soon).</p>
+      <section id="akten" class="page">
+        <h2>Akten-System</h2>
+        <form id="aktenForm">
+          <label>
+            Kategorie:
+            <select id="aktenKategorie">
+              <option value="vermerk">Vermerk</option>
+              <option value="leicht">Leichte Kriminalität</option>
+              <option value="mittel">Mittlere Kriminalität</option>
+              <option value="schwer">Schwere Kriminalität</option>
+            </select>
+          </label>
+          <div id="aktenDetails"></div>
+          <button type="submit">Einreichen</button>
+        </form>
+        <div id="aktenList"></div>
       </section>
 
-      <!-- Dienstberichte -->
-      <section id="dienstberichte" class="content-section" role="region" aria-label="Dienstberichte">
-        <h1>Dienstberichte</h1>
-        <p>Hier findest du Dienstberichte (Coming Soon).</p>
+      <section id="informationen" class="page">
+        <h2>Cop-Net Informationen</h2>
+        <p>Hier können Infos zu Abläufen, Richtlinien und mehr stehen.</p>
       </section>
 
-      <!-- Personal-Akten -->
-      <section id="personal" class="content-section" role="region" aria-label="Personal-Akten">
-        <h1>Personal-Akten</h1>
-        <p>Verwaltung der Personal-Akten (Coming Soon).</p>
+      <section id="fahndung" class="page">
+        <h2>Aktuelle Fahndung</h2>
+        <p>Liste aktiver Fahndungen wird hier erscheinen.</p>
       </section>
 
-      <!-- Einstellungen -->
-      <section id="settings" class="content-section" role="region" aria-label="Einstellungen">
-        <h1>Einstellungen</h1>
-        <p>Konfiguration des Systems (Coming Soon).</p>
+      <section id="berichte" class="page">
+        <h2>Dienstberichte</h2>
+        <p>Berichte von Einsätzen und Schichten werden hier verwaltet.</p>
+      </section>
+
+      <section id="personal" class="page">
+        <h2>Personal-Akten</h2>
+        <p>Verwaltung der Beamtenprofile.</p>
+      </section>
+
+      <section id="einstellungen" class="page">
+        <h2>Einstellungen</h2>
+        <p>Anpassungsmöglichkeiten für das System.</p>
       </section>
     </main>
   </div>
-
-  <!-- Modal für Akte -->
-  <div id="akten-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-content" tabindex="0">
-      <form id="akten-form" novalidate>
-        <h2 id="modal-title">Neue Akte erstellen</h2>
-
-        <fieldset>
-          <legend>Aktenart wählen</legend>
-          <label><input type="radio" name="aktenart" value="vermerk" checked /> Vermerk</label>
-          <label><input type="radio" name="aktenart" value="leicht" /> Leichte Kriminalität</label>
-          <label><input type="radio" name="aktenart" value="mittel" /> Mittlere Kriminalität</label>
-          <label><input type="radio" name="aktenart" value="schwer" /> Schwere Kriminalität</label>
-        </fieldset>
-
-        <div id="vermerk-fields" class="modal-fields">
-          <label for="vermerk-name">Name:</label>
-          <input type="text" id="vermerk-name" name="vermerk-name" autocomplete="off" required />
-          <label for="vermerk-bemerkung">Bemerkung:</label>
-          <textarea id="vermerk-bemerkung" name="vermerk-bemerkung" rows="4" required></textarea>
-        </div>
-
-        <div id="kriminalitaet-fields" class="modal-fields hidden">
-          <label for="krim-name">Name:</label>
-          <input type="text" id="krim-name" name="krim-name" autocomplete="off" required />
-          <label for="krim-alter">Alter:</label>
-          <input type="number" id="krim-alter" name="krim-alter" min="0" max="150" required />
-          <label for="krim-geschlecht">Geschlecht:</label>
-          <select id="krim-geschlecht" name="krim-geschlecht" required>
-            <option value="" disabled selected>Bitte wählen</option>
-            <option value="m">Männlich</option>
-            <option value="w">Weiblich</option>
-            <option value="d">Divers</option>
-          </select>
-          <label for="krim-haarfarbe">Haarfarbe:</label>
-          <input type="text" id="krim-haarfarbe" name="krim-haarfarbe" autocomplete="off" required />
-          <label for="krim-job">Job:</label>
-          <input type="text" id="krim-job" name="krim-job" autocomplete="off" required />
-          <label for="krim-wohnort">Wohnort:</label>
-          <input type="text" id="krim-wohnort" name="krim-wohnort" autocomplete="off" required />
-          <label for="krim-auto">Auto-Kennzeichen:</label>
-          <input type="text" id="krim-auto" name="krim-auto" autocomplete="off" />
-          <label for="krim-geldstrafe">Geldstrafe (€):</label>
-          <input type="number" id="krim-geldstrafe" name="krim-geldstrafe" min="0" />
-          <label for="krim-hafteinheiten">Hafteinheiten:</label>
-          <input type="number" id="krim-hafteinheiten" name="krim-hafteinheiten" min="0" />
-          <label for="krim-paragraefe">Gesetze (Paragrafen):</label>
-          <textarea id="krim-paragraefe" name="krim-paragraefe" rows="3"></textarea>
-          <label for="krim-unterschrift">Unterschrift:</label>
-          <input type="text" id="krim-unterschrift" name="krim-unterschrift" autocomplete="off" required />
-          <label for="krim-datum">Datum:</label>
-          <input type="date" id="krim-datum" name="krim-datum" required />
-        </div>
-
-        <div class="modal-actions">
-          <button type="submit" class="btn-primary">Speichern</button>
-          <button type="button" id="akten-cancel-btn">Abbrechen</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script src="app.js"></script>
 </body>
 </html>
