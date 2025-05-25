@@ -152,22 +152,22 @@
   }
   /* Neue Styles für Vorlagen */
   .templates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: flex-start;
+
   }
   .template-card {
-    background: var(--card-bg-light);
-    color: var(--text-light);
-    border-radius: 15px;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
-    transition: box-shadow 0.3s ease;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+  width: 260px;
+}
+    .templates-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: flex-start;
+}
+
   body.dark .template-card {
     background: var(--card-bg-dark);
     color: var(--text-dark);
