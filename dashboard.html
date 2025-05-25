@@ -320,8 +320,8 @@
 
     // Funktion zum Laden des Dashboards mit Live-Statistiken
     function loadDashboard() {
-      content.innerHTML = `
-        <section class="dashboard-grid" id="liveStats">
+      content.innerHTML = 
+        `<section class="dashboard-grid" id="liveStats">
           <div class="card">
             <h2>Akten</h2>
             <div class="stat-value" id="akten-count">-</div>
@@ -336,14 +336,14 @@
             <h2>Mitarbeiterstatus</h2>
             <div class="status-defekt">Statusanzeige aktuell defekt</div>
           </div>
-        </section>
-      `;
+        </section>`
+      ;
     }
 
     // Vorlagen HTML (schönes modernes Design)
     function loadVorlagen() {
-      content.innerHTML = `
-        <h2>Vorlagen</h2>
+      content.innerHTML = 
+        `<h2>Vorlagen</h2>
         <div class="templates-grid">
           <div class="template-card">
             <h3>Schusscall der Polizei Berlin</h3>
@@ -359,28 +359,34 @@
           <div class="template-card" style="display: flex; align-items: center; justify-content: center;">
           <span style="color: red; font-weight: bold; font-size: 1.5rem;">!FREI!</span>
           </div>
-        </div>
-      `;
+        </div>`
+      ;
     }
 
-function copyText(id) {
-  const text = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    alert("Text wurde kopiert!");
-  });
-}
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Text wurde kopiert!");
+      });
+    }
 
-// Event Listener
-menuDashboard.addEventListener("click", loadDashboard);
-menuVorlagen.addEventListener("click", loadVorlagen);
-menuLogout.addEventListener("click", () => {
-  sessionStorage.clear();
-  window.location.href = "index.html";
-});
+    // Event Listener
+    menuDashboard.addEventListener("click", loadDashboard);
+    menuVorlagen.addEventListener("click", loadVorlagen);
 
-// Direkt Dashboard laden
-loadDashboard();
+    // Weiterleitung auf akten_system.html beim Klick auf "Akten System"
+    menuAkten.addEventListener("click", () => {
+      window.location.href = "akten_system.html";
+    });
 
-</script> 
+    menuLogout.addEventListener("click", () => {
+      sessionStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    // Direkt Dashboard laden
+    loadDashboard();
+
+  </script> 
 </body> 
 </html>
