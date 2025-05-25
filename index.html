@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Polizei Netzewerk BerlinRP - Login</title>
   <style>
-    /* Einfaches, modernes Styling */
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #2c3e50, #3498db);
-      color: #fff;
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,12 +16,16 @@
       margin: 0;
     }
     form {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       padding: 2rem;
       border-radius: 10px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
       width: 320px;
-      animation: fadeIn 1s ease forwards;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
     }
     label {
       display: block;
@@ -37,90 +40,70 @@
       border-radius: 5px;
       font-size: 1rem;
       outline: none;
-      transition: box-shadow 0.3s ease;
-    }
-    input:focus {
-      box-shadow: 0 0 8px #3498db;
     }
     button {
       width: 100%;
       padding: 0.7rem;
+      background-color: #2980b9;
       border: none;
       border-radius: 5px;
-      background-color: #2980b9;
-      color: white;
       font-size: 1.1rem;
+      color: white;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #1c5980;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
     }
   </style>
 </head>
 <body>
   <form id="loginForm">
     <h1>Polizei Netzewerk BerlinRP</h1>
-
     <label for="username">Nutzername:</label>
     <input type="text" id="username" name="username" required autocomplete="off" />
-
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required autocomplete="off" />
-
     <button type="submit">Login</button>
   </form>
 
   <script>
-    // Hier die Nutzer festlegen (hartkodiert)
+    // Nutzerliste im Script (hartkodiert)
     const users = [
       { username: "Julian_Adler", email: "julian.adler@copnet.de", role: "admin" },
       { username: "Jonas_Adler", email: "jonas.adler@copnet.de", role: "admin" }
     ];
 
-    // Login-Funktion
-    function login(event) {
-      event.preventDefault(); // Seitenreload verhindern
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault();
 
-      // Eingaben aus Formular
+      // Werte aus Formular holen und bereinigen
       const usernameInput = document.getElementById("username").value.trim();
       const emailInput = document.getElementById("email").value.trim().toLowerCase();
 
       console.log("Eingegebener Nutzername:", usernameInput);
       console.log("Eingegebene Email:", emailInput);
 
-      // Nutzer suchen (Username case-sensitive, Email klein geschrieben)
-      const user = users.find(u => u.username === usernameInput && u.email === emailInput);
+      // Nutzer suchen
+      const foundUser = users.find(user => 
+        user.username === usernameInput && user.email.toLowerCase() === emailInput
+      );
 
-      if (user) {
-        alert("Login erfolgreich! Willkommen, " + user.username);
+      if (foundUser) {
+        alert("Login erfolgreich! Willkommen, " + foundUser.username);
 
-        // Nutzerinfo in sessionStorage speichern
-        sessionStorage.setItem("role", user.role);
-        sessionStorage.setItem("username", user.username);
+        // Nutzerinfo speichern
+        sessionStorage.setItem("username", foundUser.username);
+        sessionStorage.setItem("role", foundUser.role);
 
-        // Weiterleitung zur Hauptseite (Dashboard)
+        // Weiterleitung zur Dashboard-Seite
         window.location.href = "dashboard.html";
       } else {
         alert("Ungültiger Nutzername oder Email!");
       }
-    }
-
-    // Eventlistener für Formular-Submit
-    document.getElementById("loginForm").addEventListener("submit", login);
+    });
   </script>
 </body>
 </html>
+
 
 
