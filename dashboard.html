@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Polizei Netzewerk BerlinRP - Dashboard</title>
+<style>
+  :root {
+    --bg-light: #f0f2f5;
+    --bg-dark: #121212;
+    --text-light: #333;
+    --text-dark: #eee;
+    --sidebar-bg-light: #fff;
+    --sidebar-bg-dark: #1e1e1e;
+    --primary-color: #2980b9;
+  }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    display: flex;
+    height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+  .sidebar {
+    width: 240px;
+    background-color: var(--sidebar-bg-light);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    transition: background-color 0.3s;
+  }
+  body.dark .sidebar {
+    background-color: var(--sidebar-bg-dark);
+  }
+  .sidebar h2 {
+    text-align: center;
+    margin: 0 0 1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+  .menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+  }
+  .menu li {
+    padding: 15px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+  }
+  .menu li:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  .menu li.admin-only {
+    display: none; /* Default hidden */
+  }
+  body.dark .menu li:hover {
+    background-color: #1a5276;
+  }
+  .content {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  .topbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .toggle-btn {
+    cursor: pointer;
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+  }
+  .toggle-btn:hover {
+    background-color: #1a5276;
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 60px;
+      padding-top: 0.5rem;
+    }
+    .sidebar h2 {
+      font-size: 0;
+      margin: 0;
+      height: 0;
+      overflow: hidden;
+    }
+    .menu li {
+      padding: 15px 10px;
+      font-size: 0;
+      height: 24px;
+      position: relative;
+    }
+    .menu li::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 50px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: inherit;
+      white-space: nowrap;
+      display: block;
+    }
+  }
+</style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>BerlinRP</h2>
+    <ul class="menu">
+      <li data-label="Dashboard" id="menu-dashboard">Dashboard</li>
+      <li data-label="Akten System" id="menu-akten">Akten System</li>
+      <li data-label="Fahndungen" id="menu-fahndungen">Fahndungen</li>
+      <li data-label="Fahrzeuge" id="menu-fahrzeuge">Fahrzeuge</li>
+      <li data-label="Status" id="menu-status">Status</li>
+      <li data-label="Einstellungen" id="menu-settings" class="admin-only">Einstellungen</li>
+      <li data-label="Logout" id="menu-logout">Logout</li>
+    </ul>
+  </nav>
+  <main class="content">
+    <div class="topbar">
+      <button class="toggle-btn" id="toggleThemeBtn">Light/Dark Mode</button>
+    </div>
+    <h1 id="welcomeMsg">Willkommen, Nutzer!</h1>
+    <div id="pageContent">
+      <p>Bitte wähle einen Menüpunkt aus.</p>
+    </div>
+  </main>
+
+  <script>
+    // Rolle und Nutzer aus sessionStorage holen
+    const username = sessionStorage.getItem("username");
+    const role = sessionStorage.getItem("role");
+
+    // Falls nicht eingeloggt -> zurück zur Login-Seite
+    if (!username || !role) {
+      alert("Bitte erst einloggen!");
+      window.location.href = "index.html"; // Deine Login-Seite
+    }
+
+    // Willkommensnachricht anpassen
+    document.getElementById("welcomeMsg").textContent = `Willkommen, ${username}!`;
+
+    // Admin-Menü anzeigen, falls Rolle admin
+    if (role === "admin") {
+      document.querySelector(".admin-only").style.display = "block";
+    }
+
+    // Dark/Light Mode Toggle
+    const body = document.body;
+    const toggleBtn = document.getElementById("toggleThemeBtn");
+
+    // Lade Modus aus localStorage (falls gesetzt)
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      body.classList.add("dark");
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("dark");
+      // Speichere Einstellung
+      if (body.classList.contains("dark")) {
+        localStorage.setItem("theme", "dark");
+      } else {
+        localStorage.setItem("theme", "light");
+      }
+    });
+
+    // Menüfunktionen
+    const content = document.getElementById("pageContent");
+    const menuDashboard = document.getElementById("menu-dashboard");
+    const menuAkten = document.getElementById("menu-akten");
+    const menuFahndungen = document.getElementById("menu-fahndungen");
+    const menuFahrzeuge = document.getElementById("menu-fahrzeuge");
+    const menuStatus = document.getElementById("menu-status");
+    const menuSettings = document.getElementById("menu-settings");
+    const menuLogout = document.getElementById("menu-logout");
+
+    menuDashboard.addEventListener("click", () => {
+      content.innerHTML = "<h2>Dashboard</h2><p>Live-Statistiken werden hier angezeigt.</p>";
+    });
+
+    menuAkten.addEventListener("click", () => {
+      content.innerHTML = "<h2>Akten System</h2><p>Aktenverwaltung kommt hier hin.</p>";
+    });
+
+    menuFahndungen.addEventListener("click", () => {
+      content.innerHTML = "<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>";
+    });
+
+    menuFahrzeuge.addEventListener("click", () => {
+      content.innerHTML = "<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>";
+    });
+
+    menuStatus.addEventListener("click", () => {
+      content.innerHTML = "<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>";
+    });
+
+    menuSettings.addEventListener("click", () => {
+      content.innerHTML = "<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>";
+    });
+
+    menuLogout.addEventListener("click", () => {
+      sessionStorage.clear();
+      window.location.href = "index.html"; // Zurück zur Login-Seite
+    });
+  </script>
+</body>
+</html>
