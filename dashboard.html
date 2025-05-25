@@ -288,6 +288,49 @@
     // Beim Laden der Seite Dashboard direkt anzeigen
     loadDashboard();
   </script>
+<section class="mb-8">
+  <h2 class="text-2xl font-bold mb-4">📑 Vorlagen</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- Vorlage: Schusscall der Polizei Berlin -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 relative">
+      <h3 class="text-xl font-semibold mb-2">🚨 Schusscall der Polizei Berlin</h3>
+      <p id="vorlage1" class="text-gray-700 mb-4">
+        -zw- Polizei Berlin!! Legen sie ihre Waffe auf den Boden und kommen sie langsam mit erhobenen Händen auf mich zu!
+        Sollten sie dies nicht tun muss ich auf sie schießen!
+      </p>
+      <button onclick="copyText('vorlage1')" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded-lg">
+        📋 Kopieren
+      </button>
+    </div>
+
+    <!-- Vorlage: Rechte zum Vorlesen für Verdächtige -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 relative">
+      <h3 class="text-xl font-semibold mb-2">⚖️ Rechte zum Vorlesen für Verdächtige</h3>
+      <p id="vorlage2" class="text-gray-700 mb-4">
+        Sie haben das Recht zu schweigen, alles was sie sagen kann und wird vor Gericht gegen sie verwendet.
+        Sie haben das Recht auf einen Rechtsbeistand, können sie sich keinen leisten, dann wird ihnen einer vom Staat gestellt.
+        Wenn kein Anwalt oder Richter im Staat sein sollte, können sie sich selbst verteidigen oder ein Exekutivbeamter kann die Judikative übernehmen.
+        Wenn sie die Rechte verstanden haben dann antworten sie mit "Ja", wenn sie ihre Rechte nicht verstanden haben antworten sie mit "Nein".
+        Aber ich belehre sie hiermit, dass wenn ich ihnen die Rechte 3-mal vorgelesen habe, dass sie als verstanden gelten.
+      </p>
+      <button onclick="copyText('vorlage2')" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded-lg">
+        📋 Kopieren
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  function copyText(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Vorlage kopiert!");
+    });
+  }
+</script>
+
 </body>
 </html>
 
