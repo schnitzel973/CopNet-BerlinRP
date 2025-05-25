@@ -14,24 +14,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// --- Login-Seite ---
-if (document.getElementById("login-form")) {
-  const loginForm = document.getElementById("login-form");
-  const errorMsg = document.getElementById("error-msg");
-
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = loginForm.email.value;
-    const password = loginForm.password.value;
-
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-      window.location.href = "main.html";
-    } catch (error) {
-      errorMsg.textContent = error.message;
-    }
-  });
-
   // Automatisch weiterleiten, falls bereits eingeloggt
   auth.onAuthStateChanged(user => {
     if (user) {
