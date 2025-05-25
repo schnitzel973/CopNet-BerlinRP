@@ -1,44 +1,26 @@
-
+<!-- login.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CopNet Login</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <main class="login-container">
-    <h1>Login</h1>
-    <form id="login-form">
+<body class="login-page">
+  <div class="login-container">
+    <h1>CopNet RP-System</h1>
+    <form id="loginForm">
       <input type="email" id="email" placeholder="E-Mail" required />
       <input type="password" id="password" placeholder="Passwort" required />
       <input type="text" id="dienstnummer" placeholder="Dienstnummer" required />
       <button type="submit">Einloggen</button>
-      <p id="error-msg" style="color: red;"></p>
+      <p id="loginError" class="error"></p>
+      <p>Noch kein Konto? <a href="register.html">Registrieren</a></p>
     </form>
-    <p>Kein Konto? <a href="register.html">Registrieren</a></p>
-  </main>
+  </div>
 
-  <script type="module">
-    import { login } from './auth.js';
-
-    const form = document.getElementById('login-form');
-    const errorMsg = document.getElementById('error-msg');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.textContent = '';
-      const email = form.email.value.trim();
-      const password = form.password.value;
-      const dienstnummer = form.dienstnummer.value.trim();
-
-      try {
-        await login(email, password, dienstnummer);
-        window.location.href = 'dashboard.html';
-      } catch (err) {
-        errorMsg.textContent = err.message;
-      }
-    });
-  </script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
