@@ -1,21 +1,31 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CopNet RP Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CopNet RP</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <header>
-    <h1>Willkommen bei CopNet RP</h1>
-  </header>
+<body class="index-page">
+  <div class="center-screen">
+    <h1>CopNet RP-System</h1>
+    <p>Lade Benutzerstatus...</p>
+  </div>
 
-  <main>
-    <p>Das ist dein Start-Dashboard.</p>
-    <a href="login.html">Zum Login</a>
-  </main>
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  <script src="auth.js"></script>
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Benutzer eingeloggt → weiterleiten zum Dashboard
+        window.location.href = "dashboard.html";
+      } else {
+        // Nicht eingeloggt → weiter zur Login-Seite
+        window.location.href = "login.html";
+      }
+    });
+  </script>
 </body>
 </html>
