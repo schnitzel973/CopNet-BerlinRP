@@ -1,195 +1,91 @@
-// Referenzen
-const sidebarItems = document.querySelectorAll('.sidebar-item');
-const sections = document.querySelectorAll('.content-section');
+document.addEventListener("DOMContentLoaded", () => {
+  const navLinks = document.querySelectorAll(".sidebar nav ul li");
+  const pages = document.querySelectorAll(".page");
+  const aktenForm = document.getElementById("aktenForm");
+  const aktenKategorie = document.getElementById("aktenKategorie");
+  const aktenDetails = document.getElementById("aktenDetails");
+  const aktenList = document.getElementById("aktenList");
+  const aktenCount = document.getElementById("aktenCount");
+  const fahndungCount = document.getElementById("fahndungCount");
 
-const aktenModal = document.getElementById('akten-modal');
-const aktenForm = document.getElementById('akten-form');
-const aktenList = document.getElementById('akten-list');
-const aktenFilterName = document.getElementById('akten-filter-name');
-const aktenFilterKrim = document.getElementById('akten-filter-kriminalitaet');
-const aktenFilterReset = document.getElementById('akten-filter-reset');
-const aktenNeuBtn = document.getElementById('akten-neu-btn');
-const aktenCancelBtn = document.getElementById('akten-cancel-btn');
+  let akten = [];
+  let fahndungen = [];
 
-let akten = [];
-
-// Navigation wechseln
-sidebarItems.forEach(item => {
-  item.addEventListener('click', () => {
-    setActiveSection(item.dataset.section);
-  });
-  item.addEventListener('keydown', e => {
-    if(e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setActiveSection(item.dataset.section);
-    }
-  });
-});
-
-function setActiveSection(sectionId) {
-  sections.forEach(sec => {
-    sec.classList.toggle('active', sec.id === sectionId);
+  navLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      pages.forEach(page => page.classList.remove("active"));
+      document.getElementById(link.dataset.page).classList.add("active");
+    });
   });
 
-  sidebarItems.forEach(item => {
-    const isActive = item.dataset.section === sectionId;
-    item.classList.toggle('active', isActive);
-    item.tabIndex = isActive ? 0 : -1;
-    if (isActive) item.setAttribute('aria-current', 'page');
-    else item.removeAttribute('aria-current');
-  });
-}
-
-// Modal Ein/Aus
-function toggleModal(show) {
-  if(show) {
-    aktenModal.classList.remove('hidden');
-    // Fokus auf erstes Feld
-    setTimeout(() => {
-      aktenForm.querySelector('input,textarea,select').focus();
-    }, 100);
-  } else {
-    aktenModal.classList.add('hidden');
-    aktenForm.reset();
-    showVermerkFields();
-  }
-}
-
-// Modal Art-Felder wechseln
-aktenForm.aktenart.forEach(radio => {
-  radio.addEventListener('change', () => {
-    if(radio.value === 'vermerk') {
-      showVermerkFields();
+  function updateAktenForm(kategorie) {
+    if (kategorie === "vermerk") {
+      aktenDetails.innerHTML = `
+        <label>
+          Name:<br />
+          <input type="text" name="name" required />
+        </label>
+        <label>
+          Bemerkung:<br />
+          <textarea name="bemerkung" required></textarea>
+        </label>
+      `;
     } else {
-      showKriminalitaetFields();
-    }
-  });
-});
-
-function showVermerkFields() {
-  document.getElementById('vermerk-fields').classList.remove('hidden');
-  document.getElementById('kriminalitaet-fields').classList.add('hidden');
-
-  // Pflichtfelder anpassen
-  document.getElementById('vermerk-name').required = true;
-  document.getElementById('vermerk-bemerkung').required = true;
-
-  const krimFields = ['krim-name','krim-alter','krim-geschlecht','krim-haarfarbe','krim-job','krim-wohnort','krim-auto','krim-geldstrafe','krim-hafteinheiten','krim-paragraefe','krim-unterschrift','krim-datum'];
-  krimFields.forEach(id => {
-    document.getElementById(id).required = false;
-  });
-}
-
-function showKriminalitaetFields() {
-  document.getElementById('vermerk-fields').classList.add('hidden');
-  document.getElementById('kriminalitaet-fields').classList.remove('hidden');
-
-  // Pflichtfelder anpassen
-  document.getElementById('vermerk-name').required = false;
-  document.getElementById('vermerk-bemerkung').required = false;
-
-  const krimFields = ['krim-name','krim-alter','krim-geschlecht','krim-haarfarbe','krim-job','krim-wohnort','krim-auto','krim-geldstrafe','krim-hafteinheiten','krim-paragraefe','krim-unterschrift','krim-datum'];
-  krimFields.forEach(id => {
-    document.getElementById(id).required = true;
-  });
-}
-
-// Akte speichern
-aktenForm.addEventListener('submit', e => {
-  e.preventDefault();
-
-  const art = aktenForm.aktenart.value;
-
-  let neueAkte = { art, id: Date.now() };
-
-  if(art === 'vermerk') {
-    neueAkte.name = aktenForm['vermerk-name'].value.trim();
-    neueAkte.bemerkung = aktenForm['vermerk-bemerkung'].value.trim();
-  } else {
-    neueAkte.name = aktenForm['krim-name'].value.trim();
-    neueAkte.alter = aktenForm['krim-alter'].value.trim();
-    neueAkte.geschlecht = aktenForm['krim-geschlecht'].value;
-    neueAkte.haarfarbe = aktenForm['krim-haarfarbe'].value.trim();
-    neueAkte.job = aktenForm['krim-job'].value.trim();
-    neueAkte.wohnort = aktenForm['krim-wohnort'].value.trim();
-    neueAkte.auto = aktenForm['krim-auto'].value.trim();
-    neueAkte.geldstrafe = aktenForm['krim-geldstrafe'].value.trim();
-    neueAkte.hafteinheiten = aktenForm['krim-hafteinheiten'].value.trim();
-    neueAkte.paragraefe = aktenForm['krim-paragraefe'].value.trim();
-    neueAkte.unterschrift = aktenForm['krim-unterschrift'].value.trim();
-    neueAkte.datum = aktenForm['krim-datum'].value;
-  }
-
-  akten.push(neueAkte);
-  renderAkten();
-  toggleModal(false);
-});
-
-// Akte abbrechen
-aktenCancelBtn.addEventListener('click', () => {
-  toggleModal(false);
-});
-
-aktenNeuBtn.addEventListener('click', () => {
-  toggleModal(true);
-});
-
-// Akten rendern
-function renderAkten() {
-  let filterName = aktenFilterName.value.toLowerCase();
-  let filterKrim = aktenFilterKrim.value;
-
-  aktenList.innerHTML = '';
-
-  let gefilterteAkten = akten.filter(akte => {
-    // Filter nach Name
-    if(filterName && !akte.name.toLowerCase().includes(filterName)) return false;
-
-    // Filter nach Kriminalität
-    if(filterKrim === 'alle') return true;
-
-    if(filterKrim === 'vermerk' && akte.art === 'vermerk') return true;
-
-    if(['leicht','mittel','schwer'].includes(filterKrim) && akte.art === filterKrim) return true;
-
-    return false;
-  });
-
-  if(gefilterteAkten.length === 0) {
-    aktenList.innerHTML = '<p style="padding:15px; color:#bbb;">Keine Akten gefunden.</p>';
-    return;
-  }
-
-  gefilterteAkten.forEach(akte => {
-    const div = document.createElement('div');
-    div.classList.add('akte-item');
-    div.tabIndex = 0;
-
-    if(akte.art === 'vermerk') {
-      div.innerHTML = `<strong>${akte.name}</strong><br><em>Bemerkung:</em> ${akte.bemerkung}`;
-    } else {
-      div.innerHTML = `
-        <strong>${akte.name} (${akte.art.charAt(0).toUpperCase() + akte.art.slice(1)} Kriminalität)</strong><br>
-        Alter: ${akte.alter} | Geschlecht: ${akte.geschlecht.toUpperCase()} | Haarfarbe: ${akte.haarfarbe}<br>
-        Job: ${akte.job} | Wohnort: ${akte.wohnort} | Auto-Kennzeichen: ${akte.auto}<br>
-        Geldstrafe: ${akte.geldstrafe}€ | Hafteinheiten: ${akte.hafteinheiten}<br>
-        Gesetze: ${akte.paragraefe.replace(/\n/g, '<br>')}<br>
-        Unterschrift: ${akte.unterschrift} | Datum: ${akte.datum}
+      aktenDetails.innerHTML = `
+        <label>Name:<br /><input type="text" name="name" required /></label>
+        <label>Alter:<br /><input type="number" name="alter" /></label>
+        <label>Geschlecht:<br /><input type="text" name="geschlecht" /></label>
+        <label>Haarfarbe:<br /><input type="text" name="haarfarbe" /></label>
+        <label>Job:<br /><input type="text" name="job" /></label>
+        <label>Wohnort:<br /><input type="text" name="wohnort" /></label>
+        <label>Auto-Kennzeichen:<br /><input type="text" name="kennzeichen" /></label>
+        <label>Geldstrafe:<br /><input type="text" name="geldstrafe" /></label>
+        <label>Hafteinheiten:<br /><input type="text" name="haft" /></label>
+        <label>Gesetze gegen die verstoßen wurden:<br /><textarea name="gesetze" required></textarea></label>
+        <label>Unterschrift:<br /><input type="text" name="unterschrift" /></label>
+        <label>Datum:<br /><input type="date" name="datum" /></label>
       `;
     }
-    aktenList.appendChild(div);
+  }
+
+  aktenKategorie.addEventListener("change", (e) => {
+    updateAktenForm(e.target.value);
   });
-}
 
-// Filter Eingaben
-aktenFilterName.addEventListener('input', renderAkten);
-aktenFilterKrim.addEventListener('change', renderAkten);
-aktenFilterReset.addEventListener('click', () => {
-  aktenFilterName.value = '';
-  aktenFilterKrim.value = 'alle';
-  renderAkten();
+  aktenForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(aktenForm);
+    const eintrag = {};
+    for (let [key, value] of formData.entries()) {
+      eintrag[key] = value;
+    }
+    eintrag.kategorie = aktenKategorie.value;
+    akten.push(eintrag);
+    updateAktenList();
+    aktenForm.reset();
+    updateAktenForm(aktenKategorie.value);
+  });
+
+  function updateAktenList() {
+    aktenList.innerHTML = "";
+    akten.forEach((eintrag, index) => {
+      const div = document.createElement("div");
+      div.classList.add("akten-eintrag");
+      div.innerHTML = `<strong>${eintrag.name}</strong> (${eintrag.kategorie})<br />
+        ${eintrag.bemerkung || eintrag.gesetze || "-"}`;
+      aktenList.appendChild(div);
+    });
+    aktenCount.textContent = akten.length;
+  }
+
+  // Optional Dummy-Fahndungen (für Statistik)
+  fahndungen = [
+    { name: "Unbekannt", delikt: "Bankraub" },
+    { name: "Max Muster", delikt: "Fahrerflucht" }
+  ];
+
+  fahndungCount.textContent = fahndungen.length;
+
+  // Initiale Form laden
+  updateAktenForm(aktenKategorie.value);
 });
-
-// Initial Render
-renderAkten();
-showVermerkFields();
