@@ -158,14 +158,16 @@
   justify-content: flex-start;
 
   }
-  .template-card {
-  width: 260px;
+   .template-card {
+  max-width: 100%;
+  width: 100%;
 }
-    .templates-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: flex-start;
+
+  .templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 300px));
+  justify-content: center;
+  gap: 1.2rem;
 }
 
   body.dark .template-card {
