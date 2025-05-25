@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Polizei Netzewerk BerlinRP - Dashboard</title>
+<title>Polizei Netzwerk BerlinRP - Dashboard</title>
 <style>
   :root {
     --bg-light: #f0f2f5;
@@ -15,10 +15,13 @@
     --primary-color: #2980b9;
     --success-color: #27ae60;
     --error-color: #e74c3c;
+    --input-bg: #fff;
+    --input-border: #ccc;
+    --input-focus-border: #2980b9;
   }
   body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-light);
     color: var(--text-light);
     display: flex;
@@ -43,7 +46,7 @@
   }
   .sidebar h2 {
     text-align: center;
-    margin: 0 0 1rem;
+    margin: 0 0 1.5rem;
     font-weight: 700;
     color: var(--primary-color);
   }
@@ -57,21 +60,28 @@
     padding: 15px 20px;
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
+    border-left: 4px solid transparent;
   }
   .menu li:hover {
     background-color: var(--primary-color);
     color: white;
   }
+  .menu li.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-left: 4px solid var(--success-color);
+    font-weight: 700;
+  }
   .menu li.admin-only {
-    display: none; /* Default hidden */
+    display: none; /* default hidden */
   }
   body.dark .menu li:hover {
     background-color: #1a5276;
   }
   .content {
     flex-grow: 1;
-    padding: 2rem;
+    padding: 2rem 3rem;
     overflow-y: auto;
   }
   .topbar {
@@ -85,84 +95,155 @@
     background-color: var(--primary-color);
     border: none;
     color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
+    padding: 0.6rem 1.1rem;
+    border-radius: 6px;
     font-weight: 600;
+    font-size: 1rem;
     transition: background-color 0.2s;
   }
   .toggle-btn:hover {
     background-color: #1a5276;
   }
+  h1, h2 {
+    margin-top: 0;
+  }
+
   /* Akten System Styles */
   #aktenSystem {
-    max-width: 700px;
+    max-width: 900px;
     margin: 0 auto;
   }
-  #aktenList {
-    margin-top: 1rem;
-    border-collapse: collapse;
-    width: 100%;
+  #aktenForm {
+    background: var(--input-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgb(0 0 0 / 0.05);
+    margin-bottom: 2rem;
   }
-  #aktenList th, #aktenList td {
-    border: 1px solid #ccc;
-    padding: 8px 12px;
-    text-align: left;
+  #aktenForm fieldset {
+    border: none;
+    margin-bottom: 1rem;
+    padding: 0;
   }
-  #aktenList th {
-    background-color: var(--primary-color);
-    color: white;
+  #aktenForm legend {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
   }
-  #aktenList tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  body.dark #aktenList tr:nth-child(even) {
-    background-color: #2a2a2a;
-  }
-  body.dark #aktenList th {
-    background-color: #1a5276;
-  }
-  form label {
+  #aktenForm label {
     display: block;
-    margin-top: 1rem;
+    margin-bottom: 6px;
     font-weight: 600;
+    color: var(--text-light);
   }
-  form input, form textarea {
+  body.dark #aktenForm label {
+    color: var(--text-dark);
+  }
+  #aktenForm input[type="text"],
+  #aktenForm input[type="date"],
+  #aktenForm select,
+  #aktenForm textarea {
     width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.25rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    border: 1.8px solid var(--input-border);
+    border-radius: 6px;
     font-size: 1rem;
+    background-color: var(--input-bg);
+    color: var(--text-light);
+    transition: border-color 0.2s;
     resize: vertical;
   }
-  form button {
-    margin-top: 1rem;
-    padding: 0.7rem 1.2rem;
+  body.dark #aktenForm input,
+  body.dark #aktenForm textarea,
+  body.dark #aktenForm select {
+    background-color: #2a2a2a;
+    color: var(--text-dark);
+    border-color: #444;
+  }
+  #aktenForm input:focus,
+  #aktenForm textarea:focus,
+  #aktenForm select:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 6px var(--input-focus-border);
+  }
+  #aktenForm button {
     background-color: var(--primary-color);
-    color: white;
     border: none;
-    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 700;
+    color: white;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
+    font-size: 1rem;
     transition: background-color 0.2s;
   }
-  form button:hover {
+  #aktenForm button:hover {
     background-color: #1a5276;
+  }
+
+  /* Akten Tabelle */
+  #aktenList {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 0 15px rgb(0 0 0 / 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  #aktenList thead {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  #aktenList th, #aktenList td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+  #aktenList tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  body.dark #aktenList tbody tr:nth-child(even) {
+    background-color: #2a2a2a;
+  }
+  body.dark #aktenList thead {
+    background-color: #1a5276;
+  }
+  #aktenList tbody tr:hover {
+    background-color: #e1f0ff;
+  }
+  body.dark #aktenList tbody tr:hover {
+    background-color: #274a6f;
   }
   .btn-delete {
     background-color: var(--error-color);
-    padding: 0.3rem 0.6rem;
-    border-radius: 3px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    color: white;
     border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s;
   }
   .btn-delete:hover {
     background-color: #c0392b;
   }
   /* Responsive */
-  @media (max-width: 768px) {
+  @media (max-width: 960px) {
+    .content {
+      padding: 1.5rem 1rem;
+    }
+    #aktenForm {
+      padding: 1rem;
+    }
+    #aktenList th, #aktenList td {
+      padding: 8px 10px;
+      font-size: 0.85rem;
+    }
+  }
+  @media (max-width: 560px) {
     .sidebar {
       width: 60px;
       padding-top: 0.5rem;
@@ -190,9 +271,6 @@
       white-space: nowrap;
       display: block;
     }
-    #aktenSystem {
-      padding: 0 1rem;
-    }
   }
 </style>
 </head>
@@ -200,7 +278,7 @@
   <nav class="sidebar">
     <h2>Polizei Netzwerk</h2>
     <ul class="menu">
-      <li data-label="Dashboard" id="menu-dashboard">Dashboard</li>
+      <li data-label="Dashboard" id="menu-dashboard" class="active">Dashboard</li>
       <li data-label="Akten System" id="menu-akten">Akten System</li>
       <li data-label="Fahndungen" id="menu-fahndungen">Fahndungen</li>
       <li data-label="Fahrzeuge" id="menu-fahrzeuge">Fahrzeuge</li>
@@ -215,178 +293,243 @@
     </div>
     <h1 id="welcomeMsg">Willkommen, Nutzer!</h1>
     <div id="pageContent">
-      <p>Bitte wähle einen Menüpunkt aus.</p>
+      <section id="dashboardSection">
+        <h2>Dashboard</h2>
+        <p>Hier findest du Live-Statistiken und einen Überblick.</p>
+        <ul>
+          <li><strong>Akten insgesamt:</strong> <span id="countAkten">0</span></li>
+          <li><strong>Letzte hinzugefügte Akte:</strong> <span id="lastAkte">Keine</span></li>
+        </ul>
+      </section>
     </div>
   </main>
 
 <script>
-  // Rolle und Nutzer aus sessionStorage holen
   const username = sessionStorage.getItem("username");
   const role = sessionStorage.getItem("role");
 
-  // Falls nicht eingeloggt -> zurück zur Login-Seite
   if (!username || !role) {
     alert("Bitte erst einloggen!");
-    window.location.href = "index.html"; // Deine Login-Seite
+    window.location.href = "index.html";
   }
 
-  // Willkommensnachricht anpassen
   document.getElementById("welcomeMsg").textContent = `Willkommen, ${username}!`;
 
-  // Admin-Menü anzeigen, falls Rolle admin
   if (role === "admin") {
     document.querySelector(".admin-only").style.display = "block";
   }
 
-  // Dark/Light Mode Toggle
   const body = document.body;
   const toggleBtn = document.getElementById("toggleThemeBtn");
-
-  // Lade Modus aus localStorage (falls gesetzt)
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     body.classList.add("dark");
   }
-
   toggleBtn.addEventListener("click", () => {
     body.classList.toggle("dark");
-    // Speichere Einstellung
-    if (body.classList.contains("dark")) {
-      localStorage.setItem("theme", "dark");
-    } else {
-      localStorage.setItem("theme", "light");
-    }
+    localStorage.setItem("theme", body.classList.contains("dark") ? "dark" : "light");
   });
 
-  // Menüfunktionen
   const content = document.getElementById("pageContent");
-  const menuDashboard = document.getElementById("menu-dashboard");
-  const menuAkten = document.getElementById("menu-akten");
-  const menuFahndungen = document.getElementById("menu-fahndungen");
-  const menuFahrzeuge = document.getElementById("menu-fahrzeuge");
-  const menuStatus = document.getElementById("menu-status");
-  const menuSettings = document.getElementById("menu-settings");
-  const menuLogout = document.getElementById("menu-logout");
+  const menuItems = document.querySelectorAll(".menu li");
 
-  menuDashboard.addEventListener("click", () => {
-    content.innerHTML = "<h2>Dashboard</h2><p>Live-Statistiken werden hier angezeigt.</p>";
-  });
+  // Hilfsfunktion: Menü aktiv setzen
+  function setActiveMenu(activeId) {
+    menuItems.forEach(item => {
+      if(item.id === activeId) item.classList.add("active");
+      else item.classList.remove("active");
+    });
+  }
 
-  // Akten System anzeigen und Funktionalität
-  menuAkten.addEventListener("click", () => {
+  // Dashboard Anzeige
+  function showDashboard() {
+    setActiveMenu("menu-dashboard");
+    content.innerHTML = `
+      <section id="dashboardSection">
+        <h2>Dashboard</h2>
+        <p>Hier findest du Live-Statistiken und einen Überblick.</p>
+        <ul>
+          <li><strong>Akten insgesamt:</strong> <span id="countAkten">0</span></li>
+          <li><strong>Letzte hinzugefügte Akte:</strong> <span id="lastAkte">Keine</span></li>
+        </ul>
+      </section>
+    `;
+    updateDashboardStats();
+  }
+
+  // Update Dashboard Zahlen
+  function updateDashboardStats() {
+    let akten = JSON.parse(localStorage.getItem("akten")) || [];
+    document.getElementById("countAkten").textContent = akten.length;
+    if (akten.length > 0) {
+      const last = akten[akten.length - 1];
+      document.getElementById("lastAkte").textContent = `${last.vorname} ${last.nachname} (Aktennummer: ${last.aktenNummer})`;
+    } else {
+      document.getElementById("lastAkte").textContent = "Keine";
+    }
+  }
+
+  // Akten System anzeigen
+  function showAktenSystem() {
+    setActiveMenu("menu-akten");
     content.innerHTML = `
       <section id="aktenSystem">
         <h2>Akten System</h2>
         <form id="aktenForm">
-          <label for="aktenNummer">Aktennummer:</label>
-          <input type="text" id="aktenNummer" name="aktenNummer" required placeholder="Aktennummer eingeben" />
-          
-          <label for="beschreibung">Beschreibung:</label>
-          <textarea id="beschreibung" name="beschreibung" rows="3" required placeholder="Beschreibung eingeben"></textarea>
-          
-          <button type="submit">Akten hinzufügen</button>
+          <fieldset>
+            <legend>Personenbezogene Daten</legend>
+            <label for="aktenNummer">Aktennummer:</label>
+            <input type="text" id="aktenNummer" name="aktenNummer" required placeholder="z.B. A12345" />
+
+            <label for="vorname">Vorname:</label>
+            <input type="text" id="vorname" name="vorname" required placeholder="Vorname" />
+
+            <label for="nachname">Nachname:</label>
+            <input type="text" id="nachname" name="nachname" required placeholder="Nachname" />
+
+            <label for="geburtsdatum">Geburtsdatum:</label>
+            <input type="date" id="geburtsdatum" name="geburtsdatum" required />
+
+            <label for="haarfarbe">Haarfarbe:</label>
+            <select id="haarfarbe" name="haarfarbe" required>
+              <option value="" disabled selected>Haarfarbe wählen</option>
+              <option value="Blond">Blond</option>
+              <option value="Braun">Braun</option>
+              <option value="Schwarz">Schwarz</option>
+              <option value="Rot">Rot</option>
+              <option value="Grau">Grau</option>
+              <option value="Andere">Andere</option>
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Zusätzliche Angaben</legend>
+            <label for="beschreibung">Beschreibung / Auffälligkeiten:</label>
+            <textarea id="beschreibung" name="beschreibung" rows="3" placeholder="Beschreibung eingeben"></textarea>
+          </fieldset>
+          <button type="submit">Akteneintrag hinzufügen</button>
         </form>
         <table id="aktenList">
           <thead>
             <tr>
               <th>Aktennummer</th>
+              <th>Name</th>
+              <th>Geburtsdatum</th>
+              <th>Haarfarbe</th>
               <th>Beschreibung</th>
               <th>Aktion</th>
             </tr>
           </thead>
           <tbody id="aktenTbody">
-            <!-- Akten werden hier angezeigt -->
+            <!-- Daten hier -->
           </tbody>
         </table>
       </section>
     `;
 
-    // Aktuelle Akten aus localStorage laden
     let akten = JSON.parse(localStorage.getItem("akten")) || [];
-
     const aktenTbody = document.getElementById("aktenTbody");
     const aktenForm = document.getElementById("aktenForm");
 
     function renderAkten() {
       aktenTbody.innerHTML = "";
       if (akten.length === 0) {
-        aktenTbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">Keine Akten vorhanden.</td></tr>`;
+        aktenTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Keine Akten vorhanden.</td></tr>`;
         return;
       }
-      akten.forEach((akte, index) => {
+      akten.forEach((akte, idx) => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${akte.aktenNummer}</td>
-          <td>${akte.beschreibung}</td>
-          <td><button class="btn-delete" data-index="${index}">Löschen</button></td>
+          <td>${akte.vorname} ${akte.nachname}</td>
+          <td>${akte.geburtsdatum}</td>
+          <td>${akte.haarfarbe}</td>
+          <td>${akte.beschreibung ? akte.beschreibung : "-"}</td>
+          <td><button class="btn-delete" data-index="${idx}" title="Löschen">Löschen</button></td>
         `;
         aktenTbody.appendChild(row);
       });
     }
 
-    // Initial rendern
     renderAkten();
 
-    // Akte hinzufügen
-    aktenForm.addEventListener("submit", function(event) {
-      event.preventDefault();
+    aktenForm.addEventListener("submit", (e) => {
+      e.preventDefault();
       const neueNummer = document.getElementById("aktenNummer").value.trim();
-      const neueBeschreibung = document.getElementById("beschreibung").value.trim();
+      const vorname = document.getElementById("vorname").value.trim();
+      const nachname = document.getElementById("nachname").value.trim();
+      const geburtsdatum = document.getElementById("geburtsdatum").value;
+      const haarfarbe = document.getElementById("haarfarbe").value;
+      const beschreibung = document.getElementById("beschreibung").value.trim();
 
-      if (!neueNummer || !neueBeschreibung) {
-        alert("Bitte alle Felder ausfüllen!");
+      if (!neueNummer || !vorname || !nachname || !geburtsdatum || !haarfarbe) {
+        alert("Bitte alle Pflichtfelder ausfüllen!");
         return;
       }
 
       // Akte speichern
-      akten.push({aktenNummer: neueNummer, beschreibung: neueBeschreibung});
+      akten.push({
+        aktenNummer: neueNummer,
+        vorname,
+        nachname,
+        geburtsdatum,
+        haarfarbe,
+        beschreibung
+      });
       localStorage.setItem("akten", JSON.stringify(akten));
-      
-      // Formular zurücksetzen
+
       aktenForm.reset();
-      
-      // Liste neu rendern
       renderAkten();
+      updateDashboardStats();
     });
 
-    // Akte löschen via Event Delegation
-    aktenTbody.addEventListener("click", function(event) {
-      if (event.target.classList.contains("btn-delete")) {
-        const index = event.target.getAttribute("data-index");
+    aktenTbody.addEventListener("click", (e) => {
+      if (e.target.classList.contains("btn-delete")) {
+        const index = e.target.getAttribute("data-index");
         if (index !== null) {
           if (confirm("Akteneintrag wirklich löschen?")) {
             akten.splice(index, 1);
             localStorage.setItem("akten", JSON.stringify(akten));
             renderAkten();
+            updateDashboardStats();
           }
         }
       }
     });
-  });
+  }
 
-  menuFahndungen.addEventListener("click", () => {
-    content.innerHTML = "<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>";
-  });
-
-  menuFahrzeuge.addEventListener("click", () => {
-    content.innerHTML = "<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>";
-  });
-
-  menuStatus.addEventListener("click", () => {
-    content.innerHTML = "<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>";
-  });
-
-  menuSettings.addEventListener("click", () => {
-    content.innerHTML = "<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>";
-  });
-
-  menuLogout.addEventListener("click", () => {
+  // Weitere Menüpunkte Beispiel
+  function showFahndungen() {
+    setActiveMenu("menu-fahndungen");
+    content.innerHTML = `<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>`;
+  }
+  function showFahrzeuge() {
+    setActiveMenu("menu-fahrzeuge");
+    content.innerHTML = `<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>`;
+  }
+  function showStatus() {
+    setActiveMenu("menu-status");
+    content.innerHTML = `<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>`;
+  }
+  function showSettings() {
+    setActiveMenu("menu-settings");
+    content.innerHTML = `<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>`;
+  }
+  function logout() {
     sessionStorage.clear();
-    window.location.href = "index.html"; // Zurück zur Login-Seite
-  });
+    window.location.href = "index.html";
+  }
 
-  // Optional: direkt beim Laden das Dashboard zeigen
-  menuDashboard.click();
+  document.getElementById("menu-dashboard").addEventListener("click", showDashboard);
+  document.getElementById("menu-akten").addEventListener("click", showAktenSystem);
+  document.getElementById("menu-fahndungen").addEventListener("click", showFahndungen);
+  document.getElementById("menu-fahrzeuge").addEventListener("click", showFahrzeuge);
+  document.getElementById("menu-status").addEventListener("click", showStatus);
+  document.getElementById("menu-settings").addEventListener("click", showSettings);
+  document.getElementById("menu-logout").addEventListener("click", logout);
+
+  // Zeige Dashboard direkt beim Laden
+  showDashboard();
 </script>
 </body>
 </html>
+
