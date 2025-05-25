@@ -50,6 +50,80 @@
     padding: 0;
     margin: 0;
     flex-grow: 1;
+}
+
+.akten-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  background: white;
+  color: var(--text-light);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+body.dark .akten-table {
+  background: #2b2b2b;
+  color: var(--text-dark);
+}
+.akten-table th, .akten-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+body.dark .akten-table th, body.dark .akten-table td {
+  border-color: #444;
+}
+.akten-table th {
+  background-color: var(--primary-color);
+  color: white;
+}
+body.dark .akten-table th {
+  background-color: #1a5276;
+}
+.delete-akte-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.delete-akte-btn:hover {
+  background-color: #c0392b;
+}
+form#aktenForm label {
+  font-weight: 600;
+}
+form#aktenForm input[type="text"],
+form#aktenForm textarea {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+form#aktenForm input[type="text"]:focus,
+form#aktenForm textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+form#aktenForm button[type="submit"] {
+  background-color: var(--primary-color);
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+form#aktenForm button[type="submit"]:hover {
+  background-color: #1a5276;
   }
   .menu li {
     padding: 15px 20px;
@@ -186,6 +260,87 @@
   </main>
 
   <script>
+// Event Listener fürs Formular hier rein
+    menuAkten.addEventListener("click", () => {
+    loadAktenSystem();
+    });
+// Hilfsfunktion zum Laden der Akten aus sessionStorage
+function getAkten() {
+  const aktenJSON = sessionStorage.getItem('akten');
+  return aktenJSON ? JSON.parse(aktenJSON) : [];
+}
+
+// Hilfsfunktion zum Speichern der Akten in sessionStorage
+function saveAkten(akten) {
+  sessionStorage.setItem('akten', JSON.stringify(akten));
+}
+
+// Funktion zum Anzeigen der Akten-Liste und Formular
+function loadAktenSystem() {
+  const akten = getAkten();
+
+  content.innerHTML = `
+    <h2>Akten System</h2>
+    <table class="akten-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Titel</th>
+          <th>Beschreibung</th>
+          <th>Erstellt am</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody id="akten-body">
+        ${akten.map(akte => `
+          <tr data-id="${akte.id}">
+            <td>${akte.id}</td>
+            <td>${akte.titel}</td>
+            <td>${akte.beschreibung}</td>
+            <td>${akte.datum}</td>
+            <td><button class="delete-akte-btn" data-id="${akte.id}">Löschen</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <h3>Neue Akte anlegen</h3>
+    <form id="aktenForm">
+      <label for="titel">Titel:</label><br/>
+      <input type="text" id="titel" name="titel" required /><br/><br/>
+      <label for="beschreibung">Beschreibung:</label><br/>
+      <textarea id="beschreibung" name="beschreibung" rows="3" required></textarea><br/><br/>
+      <button type="submit">Akte erstellen</button>
+    </form>
+  `;
+
+  // Event Listener zum Löschen
+  document.querySelectorAll('.delete-akte-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const id = e.target.dataset.id;
+      let alleAkten = getAkten();
+      alleAkten = alleAkten.filter(a => a.id !== id);
+      saveAkten(alleAkten);
+      loadAktenSystem(); // neu laden
+    });
+  });
+
+  // Formular Submit
+  document.getElementById('aktenForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const titel = e.target.titel.value.trim();
+    const beschreibung = e.target.beschreibung.value.trim();
+    if (titel && beschreibung) {
+      const alleAkten = getAkten();
+      const neueID = Date.now().toString(); // einfache ID
+      const heute = new Date().toLocaleDateString('de-DE');
+      alleAkten.push({ id: neueID, titel, beschreibung, datum: heute });
+      saveAkten(alleAkten);
+      loadAktenSystem();
+    }
+  });
+}
+
+
     // Rolle und Nutzer aus sessionStorage holen
     const username = sessionStorage.getItem("username");
     const role = sessionStorage.getItem("role");
