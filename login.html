@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>CopNet Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="login-container">
+    <h1>Login</h1>
+    <form id="login-form">
+      <input type="email" id="email" placeholder="E-Mail" required />
+      <input type="password" id="password" placeholder="Passwort" required />
+      <input type="text" id="dienstnummer" placeholder="Dienstnummer" required />
+      <button type="submit">Einloggen</button>
+      <p id="error-msg" style="color: red;"></p>
+    </form>
+    <p>Kein Konto? <a href="register.html">Registrieren</a></p>
+  </main>
+
+  <script type="module">
+    import { login } from './auth.js';
+
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const dienstnummer = form.dienstnummer.value.trim();
+
+      try {
+        await login(email, password, dienstnummer);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        errorMsg.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
