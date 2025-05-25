@@ -1,168 +1,148 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CopNet BerlinRP – Professionelles ERLC Informationssystem</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CopNet BerlinRP - Akten System</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="container">
-
-  <aside class="sidebar" role="navigation" aria-label="Hauptnavigation">
-    <header class="sidebar-header">
-      <h1>CopNet BerlinRP</h1>
-    </header>
-    <nav>
-      <ul class="sidebar-list" role="menubar">
-        <li class="sidebar-item active" role="menuitem" tabindex="0" data-section="startseite">Startseite</li>
-        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="info">Cop-Net Informationen</li>
-        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="akten">Akten-System</li>
-        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="fahndung">Aktuelle Fahndung</li>
-        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="dienstberichte">Dienstberichte</li>
-        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="personal">Personal-Akten</li>
-        <li class="sidebar-item" role="menuitem" tabindex="-1" data-section="einstellungen">Einstellungen</li>
+  <div class="container">
+    <nav class="sidebar" role="navigation" aria-label="Hauptnavigation">
+      <ul class="sidebar-list">
+        <li class="sidebar-item active" data-section="dashboard" tabindex="0" aria-current="page">Startseite</li>
+        <li class="sidebar-item" data-section="info" tabindex="-1">Cop-Net Informationen</li>
+        <li class="sidebar-item" data-section="akten" tabindex="-1">Akten-System</li>
+        <li class="sidebar-item" data-section="fahndung" tabindex="-1">Aktuelle Fahndung</li>
+        <li class="sidebar-item" data-section="dienstberichte" tabindex="-1">Dienstberichte</li>
+        <li class="sidebar-item" data-section="personal" tabindex="-1">Personal-Akten</li>
+        <li class="sidebar-item" data-section="settings" tabindex="-1">Einstellungen</li>
       </ul>
     </nav>
-    <footer class="sidebar-footer">
-      <small>© 2025 CopNet BerlinRP</small>
-    </footer>
-  </aside>
 
-  <main class="main-content" role="main">
-    <section id="startseite" class="content-section active" tabindex="0" aria-label="Startseite">
-      <h2>Willkommen beim CopNet BerlinRP</h2>
-      <p>Dein modernes Informationsportal für ERLC in Roblox.</p>
-      <p>Wähle links eine Kategorie, um mehr zu erfahren.</p>
-      <img src="images/copnet_dashboard.png" alt="Dashboard Übersicht" class="dashboard-img" />
-    </section>
+    <main class="main-content">
+      <!-- Dashboard -->
+      <section id="dashboard" class="content-section active" role="region" aria-label="Startseite">
+        <h1>Willkommen beim CopNet BerlinRP</h1>
+        <p>Hier findest du alle wichtigen Informationen und Funktionen.</p>
+      </section>
 
-    <section id="info" class="content-section" tabindex="0" aria-label="Cop-Net Informationen">
-      <h2>Cop-Net Informationen</h2>
-      <article>
-        <h3>Was ist CopNet?</h3>
-        <p>CopNet ist ein umfassendes Informationssystem, das alle relevanten Daten rund um ERLC bündelt.</p>
-      </article>
-      <article>
-        <h3>Systemfunktionen</h3>
-        <ul>
-          <li>Aktenverwaltung</li>
-          <li>Fahndungslisten</li>
-          <li>Dienstberichte</li>
-          <li>Personalakten</li>
-          <li>Einstellungen & Benutzerverwaltung</li>
-        </ul>
-      </article>
-    </section>
+      <!-- Info -->
+      <section id="info" class="content-section" role="region" aria-label="Cop-Net Informationen">
+        <h1>Cop-Net Informationen</h1>
+        <p>Informationen über das CopNet System und Updates.</p>
+      </section>
 
-    <section id="akten" class="content-section" tabindex="0" aria-label="Akten-System">
-      <h2>Akten-System</h2>
-      <p>Verwalte Verdächtigen und ihre Straftaten übersichtlich und effizient.</p>
+      <!-- Akten-System -->
+      <section id="akten" class="content-section" role="region" aria-label="Akten-System">
+        <h1>Akten-System</h1>
 
-      <div class="akten-filter-container">
-        <label for="akten-filter-name">Filter nach Name:</label>
-        <input type="text" id="akten-filter-name" placeholder="Name eingeben..." autocomplete="off" />
-
-        <label for="akten-filter-kriminalitaet">Kriminalitätsstufe:</label>
-        <select id="akten-filter-kriminalitaet" aria-label="Kriminalitätsstufe auswählen">
-          <option value="alle">Alle</option>
-          <option value="leicht">Leichte Kriminalität</option>
-          <option value="mittel">Mittlere Kriminalität</option>
-          <option value="schwer">Schwere Kriminalität</option>
-          <option value="vermerk">Vermerk (Bemerkung)</option>
-        </select>
-
-        <button id="akten-filter-reset" class="btn-secondary">Filter zurücksetzen</button>
-      </div>
-
-      <div id="akten-list" class="akten-list">
-        <!-- Dynamisch befüllte Akten werden hier angezeigt -->
-      </div>
-
-      <button id="akten-neu-btn" class="btn-primary">Neue Akte anlegen</button>
-
-      <!-- Modal für Akte -->
-      <div id="akten-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="akten-modal-title" aria-describedby="akten-modal-desc">
-        <div class="modal-content">
-          <h3 id="akten-modal-title">Neue Akte anlegen</h3>
-          <form id="akten-form">
-            <fieldset>
-              <legend>Aktenart wählen</legend>
-              <label><input type="radio" name="aktenart" value="vermerk" checked /> Vermerk (Name + Bemerkung)</label><br />
-              <label><input type="radio" name="aktenart" value="kriminalitaet" /> Kriminalität (detailliert)</label>
-            </fieldset>
-
-            <div id="vermerk-fields">
-              <label for="vermerk-name">Name:</label>
-              <input type="text" id="vermerk-name" name="vermerk-name" autocomplete="off" />
-              <label for="vermerk-bemerkung">Bemerkung:</label>
-              <textarea id="vermerk-bemerkung" name="vermerk-bemerkung" rows="3"></textarea>
-            </div>
-
-            <div id="kriminalitaet-fields" class="hidden">
-              <label for="krim-name">Name:</label>
-              <input type="text" id="krim-name" name="krim-name" autocomplete="off" />
-              <label for="krim-alter">Alter:</label>
-              <input type="number" id="krim-alter" name="krim-alter" min="0" max="150" />
-              <label for="krim-geschlecht">Geschlecht:</label>
-              <select id="krim-geschlecht" name="krim-geschlecht">
-                <option value="">Bitte wählen</option>
-                <option value="m">Männlich</option>
-                <option value="w">Weiblich</option>
-                <option value="d">Divers</option>
-              </select>
-              <label for="krim-haarfarbe">Haarfarbe:</label>
-              <input type="text" id="krim-haarfarbe" name="krim-haarfarbe" autocomplete="off" />
-              <label for="krim-job">Job:</label>
-              <input type="text" id="krim-job" name="krim-job" autocomplete="off" />
-              <label for="krim-wohnort">Wohnort:</label>
-              <input type="text" id="krim-wohnort" name="krim-wohnort" autocomplete="off" />
-              <label for="krim-auto">Auto-Kennzeichen:</label>
-              <input type="text" id="krim-auto" name="krim-auto" autocomplete="off" />
-              <label for="krim-geldstrafe">Geldstrafe:</label>
-              <input type="number" id="krim-geldstrafe" name="krim-geldstrafe" min="0" />
-              <label for="krim-hafteinheiten">Hafteinheiten:</label>
-              <input type="number" id="krim-hafteinheiten" name="krim-hafteinheiten" min="0" />
-              <label for="krim-paragraefe">Gesetze / Paragrafen:</label>
-              <textarea id="krim-paragraefe" name="krim-paragraefe" rows="3" placeholder="Paragrafen mit Nummern auflisten"></textarea>
-              <label for="krim-unterschrift">Unterschrift:</label>
-              <input type="text" id="krim-unterschrift" name="krim-unterschrift" autocomplete="off" />
-              <label for="krim-datum">Datum:</label>
-              <input type="date" id="krim-datum" name="krim-datum" />
-            </div>
-
-            <div class="modal-actions">
-              <button type="submit" class="btn-primary">Speichern</button>
-              <button type="button" id="akten-cancel-btn" class="btn-secondary">Abbrechen</button>
-            </div>
-          </form>
+        <div class="akten-filters">
+          <input type="text" id="akten-filter-name" placeholder="Name des Verdächtigen filtern" aria-label="Name filtern" />
+          <select id="akten-filter-kriminalitaet" aria-label="Kriminalitätsart filtern">
+            <option value="alle">Alle</option>
+            <option value="leicht">Leichte Kriminalität</option>
+            <option value="mittel">Mittlere Kriminalität</option>
+            <option value="schwer">Schwere Kriminalität</option>
+            <option value="vermerk">Vermerk</option>
+          </select>
+          <button id="akten-filter-reset" aria-label="Filter zurücksetzen">Zurücksetzen</button>
         </div>
-      </div>
-    </section>
 
-    <section id="fahndung" class="content-section" tabindex="0" aria-label="Aktuelle Fahndung">
-      <h2>Aktuelle Fahndungen</h2>
-      <p>Hier kannst du Fahndungslisten anzeigen und verwalten (kommt bald!).</p>
-    </section>
+        <div id="akten-list" class="akten-list" tabindex="0" aria-live="polite" aria-label="Liste der Akten">
+          <!-- Akten werden hier dynamisch eingefügt -->
+        </div>
 
-    <section id="dienstberichte" class="content-section" tabindex="0" aria-label="Dienstberichte">
-      <h2>Dienstberichte</h2>
-      <p>Dienstberichte werden in Kürze verfügbar sein.</p>
-    </section>
+        <button id="akten-neu-btn" class="btn-primary" aria-haspopup="dialog" aria-controls="akten-modal">Neue Akte erstellen</button>
+      </section>
 
-    <section id="personal" class="content-section" tabindex="0" aria-label="Personal-Akten">
-      <h2>Personal-Akten</h2>
-      <p>Personal-Akten System wird vorbereitet.</p>
-    </section>
+      <!-- Fahndung -->
+      <section id="fahndung" class="content-section" role="region" aria-label="Aktuelle Fahndung">
+        <h1>Aktuelle Fahndung</h1>
+        <p>Hier werden aktuelle Fahndungen angezeigt (Coming Soon).</p>
+      </section>
 
-    <section id="einstellungen" class="content-section" tabindex="0" aria-label="Einstellungen">
-      <h2>Einstellungen</h2>
-      <p>Einstellungen folgen bald.</p>
-    </section>
-  </main>
+      <!-- Dienstberichte -->
+      <section id="dienstberichte" class="content-section" role="region" aria-label="Dienstberichte">
+        <h1>Dienstberichte</h1>
+        <p>Hier findest du Dienstberichte (Coming Soon).</p>
+      </section>
 
-</div>
+      <!-- Personal-Akten -->
+      <section id="personal" class="content-section" role="region" aria-label="Personal-Akten">
+        <h1>Personal-Akten</h1>
+        <p>Verwaltung der Personal-Akten (Coming Soon).</p>
+      </section>
 
-<script src="app.js"></script>
+      <!-- Einstellungen -->
+      <section id="settings" class="content-section" role="region" aria-label="Einstellungen">
+        <h1>Einstellungen</h1>
+        <p>Konfiguration des Systems (Coming Soon).</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal für Akte -->
+  <div id="akten-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content" tabindex="0">
+      <form id="akten-form" novalidate>
+        <h2 id="modal-title">Neue Akte erstellen</h2>
+
+        <fieldset>
+          <legend>Aktenart wählen</legend>
+          <label><input type="radio" name="aktenart" value="vermerk" checked /> Vermerk</label>
+          <label><input type="radio" name="aktenart" value="leicht" /> Leichte Kriminalität</label>
+          <label><input type="radio" name="aktenart" value="mittel" /> Mittlere Kriminalität</label>
+          <label><input type="radio" name="aktenart" value="schwer" /> Schwere Kriminalität</label>
+        </fieldset>
+
+        <div id="vermerk-fields" class="modal-fields">
+          <label for="vermerk-name">Name:</label>
+          <input type="text" id="vermerk-name" name="vermerk-name" autocomplete="off" required />
+          <label for="vermerk-bemerkung">Bemerkung:</label>
+          <textarea id="vermerk-bemerkung" name="vermerk-bemerkung" rows="4" required></textarea>
+        </div>
+
+        <div id="kriminalitaet-fields" class="modal-fields hidden">
+          <label for="krim-name">Name:</label>
+          <input type="text" id="krim-name" name="krim-name" autocomplete="off" required />
+          <label for="krim-alter">Alter:</label>
+          <input type="number" id="krim-alter" name="krim-alter" min="0" max="150" required />
+          <label for="krim-geschlecht">Geschlecht:</label>
+          <select id="krim-geschlecht" name="krim-geschlecht" required>
+            <option value="" disabled selected>Bitte wählen</option>
+            <option value="m">Männlich</option>
+            <option value="w">Weiblich</option>
+            <option value="d">Divers</option>
+          </select>
+          <label for="krim-haarfarbe">Haarfarbe:</label>
+          <input type="text" id="krim-haarfarbe" name="krim-haarfarbe" autocomplete="off" required />
+          <label for="krim-job">Job:</label>
+          <input type="text" id="krim-job" name="krim-job" autocomplete="off" required />
+          <label for="krim-wohnort">Wohnort:</label>
+          <input type="text" id="krim-wohnort" name="krim-wohnort" autocomplete="off" required />
+          <label for="krim-auto">Auto-Kennzeichen:</label>
+          <input type="text" id="krim-auto" name="krim-auto" autocomplete="off" />
+          <label for="krim-geldstrafe">Geldstrafe (€):</label>
+          <input type="number" id="krim-geldstrafe" name="krim-geldstrafe" min="0" />
+          <label for="krim-hafteinheiten">Hafteinheiten:</label>
+          <input type="number" id="krim-hafteinheiten" name="krim-hafteinheiten" min="0" />
+          <label for="krim-paragraefe">Gesetze (Paragrafen):</label>
+          <textarea id="krim-paragraefe" name="krim-paragraefe" rows="3"></textarea>
+          <label for="krim-unterschrift">Unterschrift:</label>
+          <input type="text" id="krim-unterschrift" name="krim-unterschrift" autocomplete="off" required />
+          <label for="krim-datum">Datum:</label>
+          <input type="date" id="krim-datum" name="krim-datum" required />
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Speichern</button>
+          <button type="button" id="akten-cancel-btn">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
