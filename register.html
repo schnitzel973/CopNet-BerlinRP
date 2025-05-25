@@ -1,52 +1,32 @@
-
+<!-- register.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CopNet Registrierung</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <main class="register-container">
-    <h1>Registrierung</h1>
-    <form id="register-form">
-      <input type="text" id="name" placeholder="Name" required />
+<body class="register-page">
+  <div class="register-container">
+    <h1>Registrieren – CopNet RP</h1>
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="Voller Name" required />
       <input type="email" id="email" placeholder="E-Mail" required />
       <input type="password" id="password" placeholder="Passwort" required />
       <input type="text" id="dienstnummer" placeholder="Dienstnummer" required />
       <select id="rolle" required>
-        <option value="">Rolle auswählen</option>
-        <option value="admin">Admin</option>
+        <option value="">Rolle wählen</option>
         <option value="beamter">Beamter</option>
+        <option value="admin">Admin</option>
       </select>
       <button type="submit">Registrieren</button>
-      <p id="error-msg" style="color: red;"></p>
+      <p id="registerError" class="error"></p>
+      <p>Schon registriert? <a href="login.html">Jetzt einloggen</a></p>
     </form>
-    <p>Bereits registriert? <a href="login.html">Einloggen</a></p>
-  </main>
+  </div>
 
-  <script type="module">
-    import { register } from './auth.js';
-
-    const form = document.getElementById('register-form');
-    const errorMsg = document.getElementById('error-msg');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMsg.textContent = '';
-      const name = form.name.value.trim();
-      const email = form.email.value.trim();
-      const password = form.password.value;
-      const dienstnummer = form.dienstnummer.value.trim();
-      const rolle = form.rolle.value;
-
-      try {
-        await register(email, password, dienstnummer, name, rolle);
-        window.location.href = 'dashboard.html';
-      } catch (err) {
-        errorMsg.textContent = err.message;
-      }
-    });
-  </script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
