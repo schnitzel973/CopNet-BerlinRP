@@ -1,91 +1,99 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const navLinks = document.querySelectorAll(".sidebar nav ul li");
-  const pages = document.querySelectorAll(".page");
-  const aktenForm = document.getElementById("aktenForm");
-  const aktenKategorie = document.getElementById("aktenKategorie");
-  const aktenDetails = document.getElementById("aktenDetails");
-  const aktenList = document.getElementById("aktenList");
-  const aktenCount = document.getElementById("aktenCount");
-  const fahndungCount = document.getElementById("fahndungCount");
-
-  let akten = [];
-  let fahndungen = [];
-
-  navLinks.forEach(link => {
-    link.addEventListener("click", () => {
-      pages.forEach(page => page.classList.remove("active"));
-      document.getElementById(link.dataset.page).classList.add("active");
-    });
+// Seitenwechsel: Zeige die ausgewählte Seite, verstecke alle anderen
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
   });
+  document.getElementById(pageId).classList.add('active');
+}
 
-  function updateAktenForm(kategorie) {
-    if (kategorie === "vermerk") {
-      aktenDetails.innerHTML = `
-        <label>
-          Name:<br />
-          <input type="text" name="name" required />
-        </label>
-        <label>
-          Bemerkung:<br />
-          <textarea name="bemerkung" required></textarea>
-        </label>
-      `;
-    } else {
-      aktenDetails.innerHTML = `
-        <label>Name:<br /><input type="text" name="name" required /></label>
-        <label>Alter:<br /><input type="number" name="alter" /></label>
-        <label>Geschlecht:<br /><input type="text" name="geschlecht" /></label>
-        <label>Haarfarbe:<br /><input type="text" name="haarfarbe" /></label>
-        <label>Job:<br /><input type="text" name="job" /></label>
-        <label>Wohnort:<br /><input type="text" name="wohnort" /></label>
-        <label>Auto-Kennzeichen:<br /><input type="text" name="kennzeichen" /></label>
-        <label>Geldstrafe:<br /><input type="text" name="geldstrafe" /></label>
-        <label>Hafteinheiten:<br /><input type="text" name="haft" /></label>
-        <label>Gesetze gegen die verstoßen wurden:<br /><textarea name="gesetze" required></textarea></label>
-        <label>Unterschrift:<br /><input type="text" name="unterschrift" /></label>
-        <label>Datum:<br /><input type="date" name="datum" /></label>
-      `;
+// Umschalten der Felder im Aktenformular
+function toggleAktenFields() {
+  const typ = document.getElementById("aktenTyp").value;
+  document.getElementById("vermerkFields").style.display = (typ === "vermerk") ? "block" : "none";
+  document.getElementById("akteFields").style.display = (typ !== "vermerk") ? "block" : "none";
+}
+
+// Neue Akte hinzufügen
+function addAkte() {
+  const list = document.getElementById("aktenList");
+  const typ = document.getElementById("aktenTyp").value;
+  let content = '';
+
+  if (typ === "vermerk") {
+    const name = document.getElementById("vermerkName").value.trim();
+    const text = document.getElementById("vermerkText").value.trim();
+
+    if (!name || !text) {
+      alert("Bitte Name und Bemerkung ausfüllen!");
+      return;
     }
+
+    content = `<div class="akte-card"><h4>${escapeHtml(name)}</h4><p>${escapeHtml(text)}</p></div>`;
+
+    // Formular reset
+    document.getElementById("vermerkName").value = '';
+    document.getElementById("vermerkText").value = '';
+
+  } else {
+    // Werte holen
+    const fields = [
+      "akteName","akteAlter","akteGeschlecht","akteHaarfarbe",
+      "akteJob","akteWohnort","akteKennzeichen","akteStrafe",
+      "akteHaft","akteGesetze","akteUnterschrift","akteDatum"
+    ];
+    let missing = false;
+    fields.forEach(f => {
+      if (!document.getElementById(f).value.trim()) missing = true;
+    });
+    if (missing) {
+      alert("Bitte alle Felder ausfüllen!");
+      return;
+    }
+
+    content = `
+    <div class="akte-card">
+      <h4>${escapeHtml(document.getElementById("akteName").value)}</h4>
+      <p>Alter: ${escapeHtml(document.getElementById("akteAlter").value)}</p>
+      <p>Geschlecht: ${escapeHtml(document.getElementById("akteGeschlecht").value)}</p>
+      <p>Haarfarbe: ${escapeHtml(document.getElementById("akteHaarfarbe").value)}</p>
+      <p>Job: ${escapeHtml(document.getElementById("akteJob").value)}</p>
+      <p>Wohnort: ${escapeHtml(document.getElementById("akteWohnort").value)}</p>
+      <p>Auto-Kennzeichen: ${escapeHtml(document.getElementById("akteKennzeichen").value)}</p>
+      <p>Geldstrafe: ${escapeHtml(document.getElementById("akteStrafe").value)} €</p>
+      <p>Hafteinheiten: ${escapeHtml(document.getElementById("akteHaft").value)}</p>
+      <p>Gesetze: ${escapeHtml(document.getElementById("akteGesetze").value)}</p>
+      <p>Unterschrift: ${escapeHtml(document.getElementById("akteUnterschrift").value)}</p>
+      <p>Datum: ${escapeHtml(document.getElementById("akteDatum").value)}</p>
+    </div>`;
+
+    // Formular reset
+    fields.forEach(f => {
+      document.getElementById(f).value = '';
+    });
   }
 
-  aktenKategorie.addEventListener("change", (e) => {
-    updateAktenForm(e.target.value);
-  });
+  list.insertAdjacentHTML('beforeend', content);
+  updateStats();
+}
 
-  aktenForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(aktenForm);
-    const eintrag = {};
-    for (let [key, value] of formData.entries()) {
-      eintrag[key] = value;
-    }
-    eintrag.kategorie = aktenKategorie.value;
-    akten.push(eintrag);
-    updateAktenList();
-    aktenForm.reset();
-    updateAktenForm(aktenKategorie.value);
-  });
+// Statistik aktualisieren
+function updateStats() {
+  const count = document.querySelectorAll(".akte-card").length;
+  document.getElementById("aktenCount").innerText = `📂 Akten: ${count}`;
+}
 
-  function updateAktenList() {
-    aktenList.innerHTML = "";
-    akten.forEach((eintrag, index) => {
-      const div = document.createElement("div");
-      div.classList.add("akten-eintrag");
-      div.innerHTML = `<strong>${eintrag.name}</strong> (${eintrag.kategorie})<br />
-        ${eintrag.bemerkung || eintrag.gesetze || "-"}`;
-      aktenList.appendChild(div);
-    });
-    aktenCount.textContent = akten.length;
-  }
+// HTML escapen (Security)
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
-  // Optional Dummy-Fahndungen (für Statistik)
-  fahndungen = [
-    { name: "Unbekannt", delikt: "Bankraub" },
-    { name: "Max Muster", delikt: "Fahrerflucht" }
-  ];
-
-  fahndungCount.textContent = fahndungen.length;
-
-  // Initiale Form laden
-  updateAktenForm(aktenKategorie.value);
+// Initial Setup
+document.addEventListener('DOMContentLoaded', () => {
+  toggleAktenFields(); // initiales Umschalten
+  updateStats();       // initiale Statistik
 });
