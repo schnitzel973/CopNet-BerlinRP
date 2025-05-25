@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>CopNet Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+    }
+    .sidebar {
+      width: 220px;
+      background: #2c3e50;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 {
+      margin: 0 0 40px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .sidebar a {
+      color: #bdc3c7;
+      text-decoration: none;
+      margin: 10px 0;
+      font-weight: 600;
+      padding: 10px 15px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      background: #3498db;
+      color: white;
+    }
+    main.content {
+      flex-grow: 1;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+    header {
+      margin-bottom: 40px;
+    }
+    header h1 {
+      margin: 0 0 5px;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+      padding: 25px;
+      flex: 1;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    .stat-number {
+      font-size: 48px;
+      font-weight: 700;
+      color: #3498db;
+    }
+    .stat-label {
+      font-weight: 600;
+      margin-top: 10px;
+      color: #555;
+    }
+    #logout-btn {
+      margin-top: auto;
+      padding: 10px;
+      background: #e74c3c;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #logout-btn:hover {
+      background: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>CopNet</h2>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="akten.html">Akten</a>
+    <a href="fahndungen.html">Fahndungen</a>
+    <a href="personalakten.html">Personalakten</a>
+    <a href="status.html">Status</a>
+    <button id="logout-btn">Logout</button>
+  </nav>
+  <main class="content">
+    <header>
+      <h1 id="welcome">Willkommen, Beamter</h1>
+      <p id="user-role">Rolle: ...</p>
+    </header>
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-number" id="akten-count">0</div>
+        <div class="stat-label">Akten</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="fahndungen-count">0</div>
+        <div class="stat-label">Fahndungen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="personalakten-count">0</div>
+        <div class="stat-label">Personalakten</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import {
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import {
+      collection,
+      getDocs,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const welcomeEl = document.getElementById("welcome");
+    const roleEl = document.getElementById("user-role");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    const aktenCountEl = document.getElementById("akten-count");
+    const fahndungenCountEl = document.getElementById("fahndungen-count");
+    const personalaktenCountEl = document.getElementById("personalakten-count");
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userSnapshot = await getDoc(doc(db, "users", user.uid));
+
+      if (!userSnapshot.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userData = userSnapshot.data();
+      welcomeEl.textContent = `Willkommen, ${userData.name}`;
+      roleEl.textContent = `Rolle: ${userData.rolle}`;
+
+      const aktenSnap = await getDocs(collection(db, "akten"));
+      const fahndungenSnap = await getDocs(collection(db, "fahndungen"));
+      const personalaktenSnap = await getDocs(collection(db, "personalakten"));
+
+      aktenCountEl.textContent = aktenSnap.size;
+      fahndungenCountEl.textContent = fahndungenSnap.size;
+      personalaktenCountEl.textContent = personalaktenSnap.size;
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
