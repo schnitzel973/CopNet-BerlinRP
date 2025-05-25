@@ -43,12 +43,23 @@
   body.dark .sidebar {
     background-color: var(--sidebar-bg-dark);
   }
+
+  /* Sidebar Kategorien-Titel mit Animation */
   .sidebar h2 {
     text-align: center;
     margin: 0 0 1rem;
     font-weight: 700;
     color: var(--primary-color);
+    font-size: 1.8rem;
+    transition: transform 0.3s ease, font-size 0.3s ease;
+    cursor: default;
   }
+  .sidebar h2:hover {
+    transform: scale(1.1);
+    font-size: 2rem;
+  }
+
+  /* Menü-Boxen etwas kleiner */
   .menu {
     list-style: none;
     padding: 0;
@@ -56,14 +67,16 @@
     flex-grow: 1;
   }
   .menu li {
-    padding: 15px 20px;
+    padding: 12px 16px;  /* kleiner als vorher (war 15px 20px) */
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.15s ease;
+    border-radius: 6px;
   }
   .menu li:hover {
     background-color: var(--primary-color);
     color: white;
+    transform: scale(1.05);
   }
   .menu li.admin-only {
     display: none; /* Default hidden */
@@ -323,7 +336,7 @@
     // Vorlagen HTML (schönes modernes Design)
     function loadVorlagen() {
       content.innerHTML = `
-        <h2>📑 Vorlagen</h2>
+        <h2>Vorlagen</h2>
         <div class="templates-grid">
           <div class="template-card">
             <h3>Schusscall der Polizei Berlin</h3>
@@ -339,46 +352,24 @@
       `;
     }
 
-    // Copy to clipboard Funktion
-    function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Vorlage kopiert!");
-      }).catch(() => {
-        alert("Fehler beim Kopieren!");
-      });
-    }
+function copyText(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Text wurde kopiert!");
+  });
+}
 
-    // Event Listener für Menüs
-    menuDashboard.addEventListener("click", () => {
-      loadDashboard();
-    });
-    menuAkten.addEventListener("click", () => {
-      content.innerHTML = "<h2>Akten System</h2><p>Aktenverwaltung kommt hier hin.</p>";
-    });
-    menuFahndungen.addEventListener("click", () => {
-      content.innerHTML = "<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>";
-    });
-    menuFahrzeuge.addEventListener("click", () => {
-      content.innerHTML = "<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>";
-    });
-    menuStatus.addEventListener("click", () => {
-      content.innerHTML = "<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>";
-    });
-    menuSettings.addEventListener("click", () => {
-      content.innerHTML = "<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>";
-    });
-    menuLogout.addEventListener("click", () => {
-      sessionStorage.clear();
-      window.location.href = "index.html"; // Zurück zur Login-Seite
-    });
-    menuVorlagen.addEventListener("click", () => {
-      loadVorlagen();
-    });
+// Event Listener
+menuDashboard.addEventListener("click", loadDashboard);
+menuVorlagen.addEventListener("click", loadVorlagen);
+menuLogout.addEventListener("click", () => {
+  sessionStorage.clear();
+  window.location.href = "index.html";
+});
 
-    // Initiales Laden des Dashboards
-    loadDashboard();
-  </script>
+// Direkt Dashboard laden
+loadDashboard();
 
-</body>
+</script> 
+</body> 
 </html>
