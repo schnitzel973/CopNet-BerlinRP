@@ -185,25 +185,7 @@
     <div id="pageContent"></div>
   </main>
 
-  <script
-
-  // Formular Submit
-  document.getElementById('aktenForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const titel = e.target.titel.value.trim();
-    const beschreibung = e.target.beschreibung.value.trim();
-    if (titel && beschreibung) {
-      const alleAkten = getAkten();
-      const neueID = Date.now().toString(); // einfache ID
-      const heute = new Date().toLocaleDateString('de-DE');
-      alleAkten.push({ id: neueID, titel, beschreibung, datum: heute });
-      saveAkten(alleAkten);
-      loadAktenSystem();
-    }
-  });
-}
-
-
+  <script>
     // Rolle und Nutzer aus sessionStorage holen
     const username = sessionStorage.getItem("username");
     const role = sessionStorage.getItem("role");
@@ -258,12 +240,12 @@
         <section class="dashboard-grid" id="liveStats">
           <div class="card">
             <h2>Akten</h2>
-            <div class="stat-value" id="akten-count">-</div>
+            <div class="stat-value" id="akten-count">42</div>
             <div class="stat-label">Gesamtzahl der Akten</div>
           </div>
           <div class="card">
             <h2>Fahndungen</h2>
-            <div class="stat-value" id="fahndungen-count">-</div>
+            <div class="stat-value" id="fahndungen-count">7</div>
             <div class="stat-label">Aktive Fahndungen</div>
           </div>
           <div class="card">
