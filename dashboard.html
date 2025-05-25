@@ -120,6 +120,54 @@
       display: block;
     }
   }
+
+  /* --- Live Statistik Styles --- */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.8rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .card {
+    background: rgba(41, 128, 185, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 15px;
+    padding: 1.8rem 2rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+    color: #fff;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+  .card h2 {
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .stat-value {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #3498db;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .stat-label {
+    margin-top: 0.4rem;
+    font-weight: 500;
+    color: #ccc;
+    font-size: 0.95rem;
+  }
+  .status-defekt {
+    margin-top: 1rem;
+    font-style: italic;
+    color: #e74c3c;
+    font-weight: 600;
+    text-align: center;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -141,7 +189,23 @@
     </div>
     <h1 id="welcomeMsg">Willkommen, Nutzer!</h1>
     <div id="pageContent">
-      <p>Bitte wähle einen Menüpunkt aus.</p>
+      <!-- Live Statistik als Startinhalt -->
+      <section class="dashboard-grid" id="liveStats">
+        <div class="card">
+          <h2>Akten</h2>
+          <div class="stat-value" id="akten-count">--</div>
+          <div class="stat-label">Gesamtzahl der Akten</div>
+        </div>
+        <div class="card">
+          <h2>Fahndungen</h2>
+          <div class="stat-value" id="fahndungen-count">--</div>
+          <div class="stat-label">Aktive Fahndungen</div>
+        </div>
+        <div class="card">
+          <h2>Mitarbeiterstatus</h2>
+          <div class="status-defekt">Statusanzeige aktuell defekt</div>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -194,8 +258,29 @@
     const menuSettings = document.getElementById("menu-settings");
     const menuLogout = document.getElementById("menu-logout");
 
+    function loadDashboard() {
+      content.innerHTML = `
+      <section class="dashboard-grid" id="liveStats">
+        <div class="card">
+          <h2>Akten</h2>
+          <div class="stat-value" id="akten-count">42</div>
+          <div class="stat-label">Gesamtzahl der Akten</div>
+        </div>
+        <div class="card">
+          <h2>Fahndungen</h2>
+          <div class="stat-value" id="fahndungen-count">7</div>
+          <div class="stat-label">Aktive Fahndungen</div>
+        </div>
+        <div class="card">
+          <h2>Mitarbeiterstatus</h2>
+          <div class="status-defekt">Statusanzeige aktuell defekt</div>
+        </div>
+      </section>
+      `;
+    }
+
     menuDashboard.addEventListener("click", () => {
-      content.innerHTML = "<h2>Dashboard</h2><p>Live-Statistiken werden hier angezeigt.</p>";
+      loadDashboard();
     });
 
     menuAkten.addEventListener("click", () => {
@@ -222,6 +307,10 @@
       sessionStorage.clear();
       window.location.href = "index.html"; // Zurück zur Login-Seite
     });
+
+    // Direkt beim Laden Dashboard anzeigen
+    loadDashboard();
+
   </script>
 </body>
 </html>
