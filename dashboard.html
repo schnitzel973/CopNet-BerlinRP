@@ -13,6 +13,8 @@
     --sidebar-bg-light: #fff;
     --sidebar-bg-dark: #1e1e1e;
     --primary-color: #2980b9;
+    --success-color: #27ae60;
+    --error-color: #e74c3c;
   }
   body {
     margin: 0;
@@ -91,48 +93,75 @@
   .toggle-btn:hover {
     background-color: #1a5276;
   }
-  /* Dashboard Grid & Cards */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
+  /* Akten System Styles */
+  #aktenSystem {
+    max-width: 700px;
+    margin: 0 auto;
   }
-  .card {
-    background: white;
-    color: var(--text-light);
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  #aktenList {
+    margin-top: 1rem;
+    border-collapse: collapse;
+    width: 100%;
   }
-  body.dark .card {
-    background: #2b2b2b;
-    color: var(--text-dark);
+  #aktenList th, #aktenList td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
   }
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+  #aktenList th {
+    background-color: var(--primary-color);
+    color: white;
   }
-  .card h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    font-size: 1.4rem;
+  #aktenList tr:nth-child(even) {
+    background-color: #f9f9f9;
   }
-  .stat-value {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 0.3rem;
+  body.dark #aktenList tr:nth-child(even) {
+    background-color: #2a2a2a;
   }
-  .stat-label {
-    font-size: 1rem;
-    color: gray;
+  body.dark #aktenList th {
+    background-color: #1a5276;
   }
-  .status-defekt {
-    font-style: italic;
-    color: #cc0000;
+  form label {
+    display: block;
+    margin-top: 1rem;
     font-weight: 600;
   }
+  form input, form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  form button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.2rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+  }
+  form button:hover {
+    background-color: #1a5276;
+  }
+  .btn-delete {
+    background-color: var(--error-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: white;
+    border: none;
+  }
+  .btn-delete:hover {
+    background-color: #c0392b;
+  }
+  /* Responsive */
   @media (max-width: 768px) {
     .sidebar {
       width: 60px;
@@ -161,6 +190,9 @@
       white-space: nowrap;
       display: block;
     }
+    #aktenSystem {
+      padding: 0 1rem;
+    }
   }
 </style>
 </head>
@@ -182,111 +214,179 @@
       <button class="toggle-btn" id="toggleThemeBtn">Light/Dark Mode</button>
     </div>
     <h1 id="welcomeMsg">Willkommen, Nutzer!</h1>
-    <div id="pageContent"></div>
+    <div id="pageContent">
+      <p>Bitte wähle einen Menüpunkt aus.</p>
+    </div>
   </main>
 
-  <script>
-    // Rolle und Nutzer aus sessionStorage holen
-    const username = sessionStorage.getItem("username");
-    const role = sessionStorage.getItem("role");
+<script>
+  // Rolle und Nutzer aus sessionStorage holen
+  const username = sessionStorage.getItem("username");
+  const role = sessionStorage.getItem("role");
 
-    // Falls nicht eingeloggt -> zurück zur Login-Seite
-    if (!username || !role) {
-      alert("Bitte erst einloggen!");
-      window.location.href = "index.html"; // Deine Login-Seite
+  // Falls nicht eingeloggt -> zurück zur Login-Seite
+  if (!username || !role) {
+    alert("Bitte erst einloggen!");
+    window.location.href = "index.html"; // Deine Login-Seite
+  }
+
+  // Willkommensnachricht anpassen
+  document.getElementById("welcomeMsg").textContent = `Willkommen, ${username}!`;
+
+  // Admin-Menü anzeigen, falls Rolle admin
+  if (role === "admin") {
+    document.querySelector(".admin-only").style.display = "block";
+  }
+
+  // Dark/Light Mode Toggle
+  const body = document.body;
+  const toggleBtn = document.getElementById("toggleThemeBtn");
+
+  // Lade Modus aus localStorage (falls gesetzt)
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    body.classList.add("dark");
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    body.classList.toggle("dark");
+    // Speichere Einstellung
+    if (body.classList.contains("dark")) {
+      localStorage.setItem("theme", "dark");
+    } else {
+      localStorage.setItem("theme", "light");
+    }
+  });
+
+  // Menüfunktionen
+  const content = document.getElementById("pageContent");
+  const menuDashboard = document.getElementById("menu-dashboard");
+  const menuAkten = document.getElementById("menu-akten");
+  const menuFahndungen = document.getElementById("menu-fahndungen");
+  const menuFahrzeuge = document.getElementById("menu-fahrzeuge");
+  const menuStatus = document.getElementById("menu-status");
+  const menuSettings = document.getElementById("menu-settings");
+  const menuLogout = document.getElementById("menu-logout");
+
+  menuDashboard.addEventListener("click", () => {
+    content.innerHTML = "<h2>Dashboard</h2><p>Live-Statistiken werden hier angezeigt.</p>";
+  });
+
+  // Akten System anzeigen und Funktionalität
+  menuAkten.addEventListener("click", () => {
+    content.innerHTML = `
+      <section id="aktenSystem">
+        <h2>Akten System</h2>
+        <form id="aktenForm">
+          <label for="aktenNummer">Aktennummer:</label>
+          <input type="text" id="aktenNummer" name="aktenNummer" required placeholder="Aktennummer eingeben" />
+          
+          <label for="beschreibung">Beschreibung:</label>
+          <textarea id="beschreibung" name="beschreibung" rows="3" required placeholder="Beschreibung eingeben"></textarea>
+          
+          <button type="submit">Akten hinzufügen</button>
+        </form>
+        <table id="aktenList">
+          <thead>
+            <tr>
+              <th>Aktennummer</th>
+              <th>Beschreibung</th>
+              <th>Aktion</th>
+            </tr>
+          </thead>
+          <tbody id="aktenTbody">
+            <!-- Akten werden hier angezeigt -->
+          </tbody>
+        </table>
+      </section>
+    `;
+
+    // Aktuelle Akten aus localStorage laden
+    let akten = JSON.parse(localStorage.getItem("akten")) || [];
+
+    const aktenTbody = document.getElementById("aktenTbody");
+    const aktenForm = document.getElementById("aktenForm");
+
+    function renderAkten() {
+      aktenTbody.innerHTML = "";
+      if (akten.length === 0) {
+        aktenTbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">Keine Akten vorhanden.</td></tr>`;
+        return;
+      }
+      akten.forEach((akte, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${akte.aktenNummer}</td>
+          <td>${akte.beschreibung}</td>
+          <td><button class="btn-delete" data-index="${index}">Löschen</button></td>
+        `;
+        aktenTbody.appendChild(row);
+      });
     }
 
-    // Willkommensnachricht anpassen
-    document.getElementById("welcomeMsg").textContent = `Willkommen, ${username}!`;
+    // Initial rendern
+    renderAkten();
 
-    // Admin-Menü anzeigen, falls Rolle admin
-    if (role === "admin") {
-      document.querySelector(".admin-only").style.display = "block";
-    }
+    // Akte hinzufügen
+    aktenForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const neueNummer = document.getElementById("aktenNummer").value.trim();
+      const neueBeschreibung = document.getElementById("beschreibung").value.trim();
 
-    // Dark/Light Mode Toggle
-    const body = document.body;
-    const toggleBtn = document.getElementById("toggleThemeBtn");
+      if (!neueNummer || !neueBeschreibung) {
+        alert("Bitte alle Felder ausfüllen!");
+        return;
+      }
 
-    // Lade Modus aus localStorage (falls gesetzt)
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      body.classList.add("dark");
-    }
+      // Akte speichern
+      akten.push({aktenNummer: neueNummer, beschreibung: neueBeschreibung});
+      localStorage.setItem("akten", JSON.stringify(akten));
+      
+      // Formular zurücksetzen
+      aktenForm.reset();
+      
+      // Liste neu rendern
+      renderAkten();
+    });
 
-    toggleBtn.addEventListener("click", () => {
-      body.classList.toggle("dark");
-      // Speichere Einstellung
-      if (body.classList.contains("dark")) {
-        localStorage.setItem("theme", "dark");
-      } else {
-        localStorage.setItem("theme", "light");
+    // Akte löschen via Event Delegation
+    aktenTbody.addEventListener("click", function(event) {
+      if (event.target.classList.contains("btn-delete")) {
+        const index = event.target.getAttribute("data-index");
+        if (index !== null) {
+          if (confirm("Akteneintrag wirklich löschen?")) {
+            akten.splice(index, 1);
+            localStorage.setItem("akten", JSON.stringify(akten));
+            renderAkten();
+          }
+        }
       }
     });
+  });
 
-    // Menüfunktionen
-    const content = document.getElementById("pageContent");
-    const menuDashboard = document.getElementById("menu-dashboard");
-    const menuAkten = document.getElementById("menu-akten");
-    const menuFahndungen = document.getElementById("menu-fahndungen");
-    const menuFahrzeuge = document.getElementById("menu-fahrzeuge");
-    const menuStatus = document.getElementById("menu-status");
-    const menuSettings = document.getElementById("menu-settings");
-    const menuLogout = document.getElementById("menu-logout");
+  menuFahndungen.addEventListener("click", () => {
+    content.innerHTML = "<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>";
+  });
 
-    // Funktion zum Laden des Dashboards mit Live-Statistiken
-    function loadDashboard() {
-      content.innerHTML = `
-        <section class="dashboard-grid" id="liveStats">
-          <div class="card">
-            <h2>Akten</h2>
-            <div class="stat-value" id="akten-count">-</div>
-            <div class="stat-label">Gesamtzahl der Akten</div>
-          </div>
-          <div class="card">
-            <h2>Fahndungen</h2>
-            <div class="stat-value" id="fahndungen-count">-</div>
-            <div class="stat-label">Aktive Fahndungen</div>
-          </div>
-          <div class="card">
-            <h2>Mitarbeiterstatus</h2>
-            <div class="status-defekt">Statusanzeige aktuell defekt</div>
-          </div>
-        </section>
-      `;
-    }
+  menuFahrzeuge.addEventListener("click", () => {
+    content.innerHTML = "<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>";
+  });
 
-    menuDashboard.addEventListener("click", () => {
-      loadDashboard();
-    });
+  menuStatus.addEventListener("click", () => {
+    content.innerHTML = "<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>";
+  });
 
-    menuAkten.addEventListener("click", () => {
-      content.innerHTML = "<h2>Akten System</h2><p>Aktenverwaltung kommt hier hin.</p>";
-    });
+  menuSettings.addEventListener("click", () => {
+    content.innerHTML = "<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>";
+  });
 
-    menuFahndungen.addEventListener("click", () => {
-      content.innerHTML = "<h2>Fahndungen</h2><p>Fahndungslisten und Verwaltung hier.</p>";
-    });
+  menuLogout.addEventListener("click", () => {
+    sessionStorage.clear();
+    window.location.href = "index.html"; // Zurück zur Login-Seite
+  });
 
-    menuFahrzeuge.addEventListener("click", () => {
-      content.innerHTML = "<h2>Fahrzeuge</h2><p>Fahrzeugstatus-Anzeige.</p>";
-    });
-
-    menuStatus.addEventListener("click", () => {
-      content.innerHTML = "<h2>Status</h2><p>Statusseite mit Balkendiagramm oder ASCII-Balken.</p>";
-    });
-
-    menuSettings.addEventListener("click", () => {
-      content.innerHTML = "<h2>Einstellungen</h2><p>Admin-Bereich: Datenbank löschen etc.</p>";
-    });
-
-    menuLogout.addEventListener("click", () => {
-      sessionStorage.clear();
-      window.location.href = "index.html"; // Zurück zur Login-Seite
-    });
-
-    // Beim Laden der Seite Dashboard direkt anzeigen
-    loadDashboard();
-  </script>
+  // Optional: direkt beim Laden das Dashboard zeigen
+  menuDashboard.click();
+</script>
 </body>
 </html>
