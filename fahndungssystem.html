@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Polizei Berlin Fahndungssystem</title>
+  <title>CopNet Fahndungssystem</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -87,10 +87,6 @@
       width: 130px;
     }
 
-    .hidden {
-      display: none;
-    }
-
     #uploadPreview {
       width: 100%;
       height: auto;
@@ -105,16 +101,13 @@
 
   <h1>Polizei Berlin Fahndungssystem</h1>
 
-  <!-- Abschnitt nur für Admins -->
-  <div class="section hidden" id="step1">
-    <h3>Leitungs Modus: Erstelle eine neue Fahndung</h3>
-    <label>Roblox Name:</label>
-    <input type="text" id="robloxNameStep1">
-    <button onclick="zeigeFormular()">Fahndung erstellen</button>
-  </div>
+  <!-- Admin-Formular direkt sichtbar, keine Rollenauswahl -->
+  <div class="section" id="adminForm">
+    <h3>Neue Fahndung erstellen</h3>
 
-  <div class="section hidden" id="adminForm">
-    <h3 id="formTitle">Neue Fahndung</h3>
+    <label>Roblox Name:</label>
+    <input type="text" id="robloxName">
+
     <label>RP Vor- & Nachname:</label>
     <input type="text" id="rpName">
 
@@ -149,94 +142,234 @@
     <button onclick="eintragHinzufuegen()">Eintrag abschicken</button>
   </div>
 
-  <!-- Öffentlich sichtbare Liste -->
   <div class="section">
     <h2>Öffentliche Fahndungsliste</h2>
     <div class="fahndungsliste" id="liste"></div>
   </div>
 
-  <script>
-    let aktuelleBildURL = "";
-    let robloxTitel = "";
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
-    // Rolle aus SessionStorage lesen
-    window.addEventListener("DOMContentLoaded", () => {
-      const role = sessionStorage.getItem("role");
+<script>
+  // Firebase Config & Init
+  const firebaseConfig = {
+    apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
+    authDomain: "copnet-berlinrp.firebaseapp.com",
+    projectId: "copnet-berlinrp",
+    storageBucket: "copnet-berlinrp.firebasestorage.app",
+    messagingSenderId: "325379817013",
+    appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
+    measurementId: "G-N7Z1C6XNJ0"
+  };
 
-      if (!role) {
-        alert("Nicht eingeloggt oder Session abgelaufen!");
-        window.location.href = "index.html";
-        return;
-      }
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
 
-      if (role === "admin") {
-        // Nur Admins sehen Step1 zur Erstellung
-        document.getElementById("step1").classList.remove("hidden");
-      }
-    });
+  let aktuelleBildURL = "";
+  let robloxTitel = "";
+  let aktuellerBearbeitungsId = null;
 
-    function zeigeFormular() {
-      const name = document.getElementById("robloxNameStep1").value.trim();
-      if (!name) {
-        alert("Bitte Roblox-Namen eingeben.");
-        return;
-      }
-      robloxTitel = name;
-      document.getElementById("formTitle").innerText = `Fahndung für: ${robloxTitel}`;
-      document.getElementById("adminForm").classList.remove("hidden");
+  window.addEventListener("DOMContentLoaded", () => {
+    const role = sessionStorage.getItem("role");
+    if (!role) {
+      alert("Nicht eingeloggt oder Session abgelaufen!");
+      window.location.href = "index.html";
+      return;
+    }
+    if (role === "admin") {
+      document.getElementById("step1").classList.remove("hidden");
     }
 
-    function ladeVorschau(event) {
-      const reader = new FileReader();
-      reader.onload = function () {
-        aktuelleBildURL = reader.result;
+    ladeFahndungen();
+  });
+
+  function zeigeFormular() {
+    const name = document.getElementById("robloxNameStep1").value.trim();
+    if (!name) {
+      alert("Bitte Roblox-Namen eingeben.");
+      return;
+    }
+    robloxTitel = name;
+    document.getElementById("formTitle").innerText = `Fahndung für: ${robloxTitel}`;
+    document.getElementById("adminForm").classList.remove("hidden");
+  }
+
+  function ladeVorschau(event) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      aktuelleBildURL = reader.result;
+      const img = document.getElementById("uploadPreview");
+      img.src = aktuelleBildURL;
+      img.classList.remove("hidden");
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+
+  async function eintragHinzufuegen() {
+    const rpName = document.getElementById("rpName").value.trim();
+    const alter = document.getElementById("alter").value.trim();
+    const geburtstag = document.getElementById("geburtstag").value.trim();
+    const groesse = document.getElementById("groesse").value.trim();
+    const haarfarbe = document.getElementById("haarfarbe").value.trim();
+    const augenfarbe = document.getElementById("augenfarbe").value.trim();
+    const aufenthalt = document.getElementById("aufenthalt").value.trim();
+    const besonderheiten = document.getElementById("besonderheiten").value.trim();
+    const grund = document.getElementById("grund").value.trim();
+
+    if (!robloxTitel) {
+      alert("Bitte zuerst Roblox Name eingeben und Formular öffnen.");
+      return;
+    }
+    if (!rpName) {
+      alert("Bitte RP Name eingeben.");
+      return;
+    }
+
+    // Neues Objekt für Firestore
+    const fahndungData = {
+      robloxTitel,
+      rpName,
+      alter,
+      geburtstag,
+      groesse,
+      haarfarbe,
+      augenfarbe,
+      aufenthalt,
+      besonderheiten,
+      grund,
+      bildURL: aktuelleBildURL || null,
+      erstelltAm: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      if (aktuellerBearbeitungsId) {
+        // Update vorhandenen Eintrag
+        await db.collection("fahndungen").doc(aktuellerBearbeitungsId).set(fahndungData);
+        aktuellerBearbeitungsId = null;
+      } else {
+        // Neu hinzufügen
+        await db.collection("fahndungen").add(fahndungData);
+      }
+
+      alert("Fahndung erfolgreich gespeichert.");
+      resetForm();
+      ladeFahndungen();
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+      alert("Fehler beim Speichern der Fahndung.");
+    }
+  }
+
+  function resetForm() {
+    document.getElementById("adminForm").classList.add("hidden");
+    document.getElementById("robloxNameStep1").value = "";
+    document.getElementById("uploadPreview").src = "";
+    document.getElementById("uploadPreview").classList.add("hidden");
+    aktuelleBildURL = "";
+    robloxTitel = "";
+    aktuellerBearbeitungsId = null;
+
+    document.getElementById("adminForm").querySelectorAll("input, textarea").forEach(el => el.value = "");
+  }
+
+  async function ladeFahndungen() {
+    const liste = document.getElementById("liste");
+    liste.innerHTML = "";
+
+    try {
+      const snapshot = await db.collection("fahndungen").orderBy("erstelltAm", "desc").get();
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const id = doc.id;
+
+        const karte = document.createElement("div");
+        karte.className = "steckbrief";
+
+        karte.innerHTML = `
+          <img src="${data.bildURL || 'https://via.placeholder.com/300x250?text=Kein+Bild'}" alt="Fahndungsbild">
+          <div class="info">
+            <p><strong>Roblox Name:</strong> ${data.robloxTitel}</p>
+            <p><strong>RP Name:</strong> ${data.rpName}</p>
+            <p><strong>Alter:</strong> ${data.alter}</p>
+            <p><strong>Geburtsdatum:</strong> ${data.geburtstag}</p>
+            <p><strong>Größe:</strong> ${data.groesse} cm</p>
+            <p><strong>Haarfarbe:</strong> ${data.haarfarbe}</p>
+            <p><strong>Augenfarbe:</strong> ${data.augenfarbe}</p>
+            <p><strong>Aufenthalt:</strong> ${data.aufenthalt}</p>
+            <p><strong>Besonderheiten:</strong> ${data.besonderheiten}</p>
+            <p><strong>Grund:</strong> ${data.grund}</p>
+            <button onclick="bearbeiten('${id}')">Bearbeiten</button>
+            <button onclick="loeschen('${id}')">Löschen</button>
+          </div>
+        `;
+
+        liste.appendChild(karte);
+      });
+
+    } catch (error) {
+      console.error("Fehler beim Laden der Fahndungen:", error);
+      alert("Fehler beim Laden der Fahndungen.");
+    }
+  }
+
+  async function loeschen(id) {
+    if (!confirm("Willst du diese Fahndung wirklich löschen?")) return;
+    try {
+      await db.collection("fahndungen").doc(id).delete();
+      ladeFahndungen();
+    } catch (error) {
+      console.error("Fehler beim Löschen:", error);
+      alert("Fehler beim Löschen der Fahndung.");
+    }
+  }
+
+  async function bearbeiten(id) {
+    try {
+      const doc = await db.collection("fahndungen").doc(id).get();
+      if (!doc.exists) {
+        alert("Fahndung nicht gefunden!");
+        return;
+      }
+      const data = doc.data();
+      aktuellerBearbeitungsId = id;
+
+      robloxTitel = data.robloxTitel || "";
+      document.getElementById("robloxNameStep1").value = robloxTitel;
+      document.getElementById("formTitle").innerText = `Fahndung bearbeiten: ${robloxTitel}`;
+
+      document.getElementById("rpName").value = data.rpName || "";
+      document.getElementById("alter").value = data.alter || "";
+      document.getElementById("geburtstag").value = data.geburtstag || "";
+      document.getElementById("groesse").value = data.groesse || "";
+      document.getElementById("haarfarbe").value = data.haarfarbe || "";
+      document.getElementById("augenfarbe").value = data.augenfarbe || "";
+      document.getElementById("aufenthalt").value = data.aufenthalt || "";
+      document.getElementById("besonderheiten").value = data.besonderheiten || "";
+      document.getElementById("grund").value = data.grund || "";
+
+      if (data.bildURL) {
+        aktuelleBildURL = data.bildURL;
         const img = document.getElementById("uploadPreview");
         img.src = aktuelleBildURL;
         img.classList.remove("hidden");
-      };
-      reader.readAsDataURL(event.target.files[0]);
+      } else {
+        aktuelleBildURL = "";
+        const img = document.getElementById("uploadPreview");
+        img.src = "";
+        img.classList.add("hidden");
+      }
+
+      document.getElementById("adminForm").classList.remove("hidden");
+    } catch (error) {
+      console.error("Fehler beim Laden der Fahndung zum Bearbeiten:", error);
+      alert("Fehler beim Laden der Fahndung.");
     }
+  }
+</script>
 
-    function eintragHinzufuegen() {
-      const rpName = document.getElementById("rpName").value;
-      const alter = document.getElementById("alter").value;
-      const geburtstag = document.getElementById("geburtstag").value;
-      const groesse = document.getElementById("groesse").value;
-      const haarfarbe = document.getElementById("haarfarbe").value;
-      const augenfarbe = document.getElementById("augenfarbe").value;
-      const aufenthalt = document.getElementById("aufenthalt").value;
-      const besonderheiten = document.getElementById("besonderheiten").value;
-      const grund = document.getElementById("grund").value;
-
-      const karte = document.createElement("div");
-      karte.className = "steckbrief";
-      karte.innerHTML = `
-        <img src="${aktuelleBildURL || 'https://via.placeholder.com/300x250?text=Kein+Bild'}" alt="Fahndungsbild">
-        <div class="info">
-          <p><strong>Roblox Name:</strong> ${robloxTitel}</p>
-          <p><strong>RP Name:</strong> ${rpName}</p>
-          <p><strong>Alter:</strong> ${alter}</p>
-          <p><strong>Geburtsdatum:</strong> ${geburtstag}</p>
-          <p><strong>Größe:</strong> ${groesse} cm</p>
-          <p><strong>Haarfarbe:</strong> ${haarfarbe}</p>
-          <p><strong>Augenfarbe:</strong> ${augenfarbe}</p>
-          <p><strong>Aufenthalt:</strong> ${aufenthalt}</p>
-          <p><strong>Besonderheiten:</strong> ${besonderheiten}</p>
-          <p><strong>Grund:</strong> ${grund}</p>
-        </div>
-      `;
-      document.getElementById("liste").appendChild(karte);
-
-      // Reset
-      document.getElementById("adminForm").classList.add("hidden");
-      document.getElementById("robloxNameStep1").value = "";
-      document.getElementById("uploadPreview").src = "";
-      document.getElementById("uploadPreview").classList.add("hidden");
-      aktuelleBildURL = "";
-      robloxTitel = "";
-      document.getElementById("adminForm").querySelectorAll("input, textarea").forEach(el => el.value = "");
-    }
-  </script>
 
 </body>
 </html>
