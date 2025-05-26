@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CopNet Fahndungssystem</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f3f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .section {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .fahndungsliste {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .steckbrief {
+      background: #fff;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .steckbrief img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .steckbrief .info {
+      padding: 15px;
+      font-size: 14px;
+    }
+
+    .steckbrief .info strong {
+      display: inline-block;
+      width: 130px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #uploadPreview {
+      width: 100%;
+      height: auto;
+      max-height: 250px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>CopNet Fahndungssystem</h1>
+
+  <!-- Abschnitt nur für Admins -->
+  <div class="section hidden" id="step1">
+    <h3>🔐 Admin-Modus: Schritt 1 – Roblox-Name</h3>
+    <label>Roblox Name:</label>
+    <input type="text" id="robloxNameStep1">
+    <button onclick="zeigeFormular()">Fahndung erstellen</button>
+  </div>
+
+  <div class="section hidden" id="adminForm">
+    <h3 id="formTitle">🛠️ Neue Fahndung</h3>
+    <label>RP Vor- & Nachname:</label>
+    <input type="text" id="rpName">
+
+    <label>Alter:</label>
+    <input type="number" id="alter">
+
+    <label>Geburtsdatum:</label>
+    <input type="date" id="geburtstag">
+
+    <label>Größe (cm):</label>
+    <input type="number" id="groesse">
+
+    <label>Haarfarbe:</label>
+    <input type="text" id="haarfarbe">
+
+    <label>Augenfarbe:</label>
+    <input type="text" id="augenfarbe">
+
+    <label>Letzter Aufenthaltsort:</label>
+    <input type="text" id="aufenthalt">
+
+    <label>Besonderheiten:</label>
+    <input type="text" id="besonderheiten">
+
+    <label>Grund der Fahndung:</label>
+    <textarea id="grund"></textarea>
+
+    <label>Bild vom PC hochladen:</label>
+    <input type="file" id="bildUpload" accept="image/*" onchange="ladeVorschau(event)">
+    <img id="uploadPreview" class="hidden">
+
+    <button onclick="eintragHinzufuegen()">Eintrag abschicken</button>
+  </div>
+
+  <!-- Öffentlich sichtbare Liste -->
+  <div class="section">
+    <h2>📂 Öffentliche Fahndungsliste</h2>
+    <div class="fahndungsliste" id="liste"></div>
+  </div>
+
+  <script>
+    let aktuelleBildURL = "";
+    let robloxTitel = "";
+
+    // Rolle aus SessionStorage lesen
+    window.addEventListener("DOMContentLoaded", () => {
+      const role = sessionStorage.getItem("role");
+
+      if (!role) {
+        alert("Nicht eingeloggt oder Session abgelaufen!");
+        window.location.href = "index.html";
+        return;
+      }
+
+      if (role === "admin") {
+        // Nur Admins sehen Step1 zur Erstellung
+        document.getElementById("step1").classList.remove("hidden");
+      }
+    });
+
+    function zeigeFormular() {
+      const name = document.getElementById("robloxNameStep1").value.trim();
+      if (!name) {
+        alert("Bitte Roblox-Namen eingeben.");
+        return;
+      }
+      robloxTitel = name;
+      document.getElementById("formTitle").innerText = `Fahndung für: ${robloxTitel}`;
+      document.getElementById("adminForm").classList.remove("hidden");
+    }
+
+    function ladeVorschau(event) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        aktuelleBildURL = reader.result;
+        const img = document.getElementById("uploadPreview");
+        img.src = aktuelleBildURL;
+        img.classList.remove("hidden");
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function eintragHinzufuegen() {
+      const rpName = document.getElementById("rpName").value;
+      const alter = document.getElementById("alter").value;
+      const geburtstag = document.getElementById("geburtstag").value;
+      const groesse = document.getElementById("groesse").value;
+      const haarfarbe = document.getElementById("haarfarbe").value;
+      const augenfarbe = document.getElementById("augenfarbe").value;
+      const aufenthalt = document.getElementById("aufenthalt").value;
+      const besonderheiten = document.getElementById("besonderheiten").value;
+      const grund = document.getElementById("grund").value;
+
+      const karte = document.createElement("div");
+      karte.className = "steckbrief";
+      karte.innerHTML = `
+        <img src="${aktuelleBildURL || 'https://via.placeholder.com/300x250?text=Kein+Bild'}" alt="Fahndungsbild">
+        <div class="info">
+          <p><strong>Roblox Name:</strong> ${robloxTitel}</p>
+          <p><strong>RP Name:</strong> ${rpName}</p>
+          <p><strong>Alter:</strong> ${alter}</p>
+          <p><strong>Geburtsdatum:</strong> ${geburtstag}</p>
+          <p><strong>Größe:</strong> ${groesse} cm</p>
+          <p><strong>Haarfarbe:</strong> ${haarfarbe}</p>
+          <p><strong>Augenfarbe:</strong> ${augenfarbe}</p>
+          <p><strong>Aufenthalt:</strong> ${aufenthalt}</p>
+          <p><strong>Besonderheiten:</strong> ${besonderheiten}</p>
+          <p><strong>Grund:</strong> ${grund}</p>
+        </div>
+      `;
+      document.getElementById("liste").appendChild(karte);
+
+      // Reset
+      document.getElementById("adminForm").classList.add("hidden");
+      document.getElementById("robloxNameStep1").value = "";
+      document.getElementById("uploadPreview").src = "";
+      document.getElementById("uploadPreview").classList.add("hidden");
+      aktuelleBildURL = "";
+      robloxTitel = "";
+      document.getElementById("adminForm").querySelectorAll("input, textarea").forEach(el => el.value = "");
+    }
+  </script>
+
+</body>
+</html>
