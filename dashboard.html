@@ -374,15 +374,21 @@
     menuDashboard.addEventListener("click", loadDashboard);
     menuVorlagen.addEventListener("click", loadVorlagen);
 
-    // Weiterleitung auf akten_system.html beim Klick auf "Akten System"
-    menuAkten.addEventListener("click", () => {
-      window.location.href = "akten_system.html";
-    });
+// Weiterleitung auf akten_system.html beim Klick auf "Akten System"
+menuAkten.addEventListener("click", () => {
+  window.location.href = "akten_system.html";
+});
 
-    menuLogout.addEventListener("click", () => {
-      sessionStorage.clear();
-      window.location.href = "index.html";
-    });
+// Weiterleitung auf fahndungssystem.html beim Klick auf "Fahndungen"
+menuFahndungen.addEventListener("click", () => {
+  window.location.href = "fahndungssystem.html";
+});
+
+menuLogout.addEventListener("click", () => {
+  sessionStorage.clear();
+  window.location.href = "index.html";
+});
+
 
     // Direkt Dashboard laden
     loadDashboard();
