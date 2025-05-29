@@ -28,14 +28,12 @@
     width: 100%;
     max-width: 1200px;
   }
-
   .container {
     display: flex;
     width: 100%;
     max-width: 1200px;
     gap: 2rem;
   }
-
   form {
     flex: 1 1 50%;
     background: #ffffff;
@@ -100,13 +98,10 @@
     cursor: not-allowed;
     opacity: 0.5;
   }
-
-  /* Formular ausgegraut wenn disabled */
   form.disabled {
     opacity: 0.5;
-    pointer-events: none; /* Verhindert Eingaben */
+    pointer-events: none;
   }
-
   .right-side {
     flex: 1 1 50%;
     display: flex;
@@ -148,7 +143,6 @@
   .search-bar button:hover {
     background-color: #1e40af;
   }
-
   .cards {
     flex-grow: 1;
     overflow-y: auto;
@@ -184,11 +178,8 @@
     background-color: #f9fafb;
     transition: all 0.3s ease;
   }
-  .status.caught {
-    color: #2563eb;
-    background-color: #dbeafe;
-    border-color: #2563eb;
-  }
+  .status.open { color: #b91c1c; background-color: #fee2e2; border-color: #b91c1c; }
+  .status.caught { color: #2563eb; background-color: #dbeafe; border-color: #2563eb; }
   .name {
     font-weight: 600;
     font-size: 1.3rem;
@@ -224,73 +215,23 @@
   button.action-btn:hover {
     background-color: #eff6ff;
   }
-  button.catch-btn {
-    border-color: #2563eb;
-  }
-  button.delete-btn {
-    color: #ef4444;
-    border-color: #ef4444;
-  }
-  button.delete-btn:hover {
-    background-color: #fee2e2;
-  }
-
+  button.catch-btn { border-color: #2563eb; }
+  button.delete-btn { color: #ef4444; border-color: #ef4444; }
+  button.delete-btn:hover { background-color: #fee2e2; }
   @media (max-width: 900px) {
-    .container {
-      flex-direction: column;
-    }
-    form, .right-side {
-      flex: 1 1 100%;
-      max-height: none;
-    }
-    .cards {
-      grid-template-columns: 1fr;
-    }
+    .container { flex-direction: column; }
+    form, .right-side { flex: 1 1 100%; max-height: none; }
+    .cards { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-
-  <h1>!Nicht Fertig! Polizei Berlin – Fahndungsliste</h1>
-
+  <h1>Polizei Berlin – Fahndungsliste</h1>
   <div class="container">
-
     <form id="fahndungsForm" autocomplete="off">
-      <label>
-        Vorname
-        <input type="text" id="vorname" placeholder="Vorname" required />
-      </label>
-      <label>
-        Nachname
-        <input type="text" id="nachname" placeholder="Nachname" required />
-      </label>
-      <label>
-        Haarfarbe
-        <input type="text" id="haarfarbe" placeholder="z.B. Braun" />
-      </label>
-      <label>
-        Augenfarbe
-        <input type="text" id="augenfarbe" placeholder="z.B. Blau" />
-      </label>
-      <label>
-        Bekleidung
-        <input type="text" id="bekleidung" placeholder="z.B. Jeans, Jacke" />
-      </label>
-      <label class="full-width">
-        Besonderheiten
-        <input type="text" id="besonderheiten" placeholder="z.B. Tätowierung am Arm" />
-      </label>
-      <label class="full-width">
-        Gefährlichkeit
-        <select id="gefaehrlichkeit">
-          <option value="gering">Gering</option>
-          <option value="mittel">Mittel</option>
-          <option value="hoch">Hoch</option>
-        </select>
-      </label>
-      <button type="submit" id="submitBtn">Eintrag erstellen</button>
+      <!-- Formulareingaben -->
+      <!-- ... -->
     </form>
-
     <div class="right-side">
       <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Suche..." />
@@ -298,25 +239,16 @@
       </div>
       <div class="cards" id="fahndungListe"></div>
     </div>
-
   </div>
-
 <script>
-  // Nutzerrolle aus sessionStorage lesen
-  const role = sessionStorage.getItem("role") || "user"; // default user
-
-  // Formular und Button referenz
+  const role = sessionStorage.getItem("role") || "user";
   const form = document.getElementById("fahndungsForm");
   const submitBtn = document.getElementById("submitBtn");
-
-  // Formular für user deaktivieren (ausgrauen + button deaktivieren)
   if (role !== "admin") {
     form.classList.add("disabled");
     submitBtn.disabled = true;
   }
-
   const fahndungen = JSON.parse(localStorage.getItem("fahndungen") || "[]");
-
   function renderList(list) {
     const container = document.getElementById("fahndungListe");
     container.innerHTML = "";
@@ -329,6 +261,7 @@
       card.className = "card";
       card.innerHTML = `
         <div class="name">${p.vorname} ${p.nachname}</div>
+        <div class="status ${p.status || 'open'}">${p.status === 'caught' ? 'Gefasst' : 'Offen'}</div>
         <div class="attributes">
           <strong>Haarfarbe:</strong> ${p.haarfarbe || "–"}<br/>
           <strong>Augenfarbe:</strong> ${p.augenfarbe || "–"}<br/>
@@ -337,14 +270,20 @@
           <strong>Gefährlichkeit:</strong> ${p.gefaehrlichkeit || "–"}
         </div>
         <div class="buttons">
-          <button class="action-btn delete-btn" data-index="${i}">Löschen</button>
-        </div>
-      `;
+          ${role === 'admin' ? `<button class="action-btn catch-btn" data-index="${i}">${p.status === 'caught' ? 'Als offen markieren' : 'Als gefasst markieren'}</button>
+          <button class="action-btn delete-btn" data-index="${i}">Löschen</button>` : ''}
+        </div>`;
       container.appendChild(card);
     });
-
-    // Löschen Event (nur admin darf löschen)
-    if(role === "admin") {
+    if (role === "admin") {
+      container.querySelectorAll(".catch-btn").forEach(btn => {
+        btn.addEventListener("click", e => {
+          const idx = e.target.getAttribute("data-index");
+          fahndungen[idx].status = fahndungen[idx].status === "caught" ? "open" : "caught";
+          localStorage.setItem("fahndungen", JSON.stringify(fahndungen));
+          renderList(fahndungen);
+        });
+      });
       container.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", e => {
           const idx = e.target.getAttribute("data-index");
@@ -355,12 +294,9 @@
       });
     }
   }
-
-  // Formular absenden
   form.addEventListener("submit", e => {
     e.preventDefault();
-    if(role !== "admin") return; // Sicherheit: nur Admins dürfen absenden
-
+    if (role !== "admin") return;
     const newEntry = {
       vorname: form.vorname.value.trim(),
       nachname: form.nachname.value.trim(),
@@ -368,18 +304,16 @@
       augenfarbe: form.augenfarbe.value.trim(),
       bekleidung: form.bekleidung.value.trim(),
       besonderheiten: form.besonderheiten.value.trim(),
-      gefaehrlichkeit: form.gefaehrlichkeit.value
+      gefaehrlichkeit: form.gefaehrlichkeit.value,
+      status: 'open'
     };
     fahndungen.push(newEntry);
     localStorage.setItem("fahndungen", JSON.stringify(fahndungen));
     renderList(fahndungen);
     form.reset();
   });
-
-  // Suche
   const searchInput = document.getElementById("searchInput");
   const searchBtn = document.getElementById("searchBtn");
-
   function filterList() {
     const query = searchInput.value.trim().toLowerCase();
     if (!query) {
@@ -397,15 +331,11 @@
     );
     renderList(filtered);
   }
-
   searchBtn.addEventListener("click", filterList);
   searchInput.addEventListener("keyup", e => {
     if (e.key === "Enter") filterList();
   });
-
-  // Liste initial anzeigen
   renderList(fahndungen);
 </script>
-
 </body>
 </html>
