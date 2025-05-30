@@ -1,175 +1,165 @@
+Ok und jetzt will ich das du das script für Login so machst das ja man halt sich nur einloggen kann wenn admin_panel der account halt existiert.
+
+Hier der code also das design soll gleich bleiben aber der rest ja:
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Polizei Netzwerk BerlinRP - Login</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-    body {
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      animation: fadeIn 1s ease-in-out;
-    }
+  body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    animation: fadeIn 1s ease-in-out;
+  }
 
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(-10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 
+  form {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease;
+  }
+
+  form:hover {
+    transform: translateY(-3px);
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #ffffff;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.65rem;
+    margin-bottom: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    outline: none;
+    transition: background-color 0.3s ease;
+  }
+
+  input:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #3498db;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  button:hover {
+    background-color: #2980b9;
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 400px) {
     form {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 2.5rem;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 380px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      transition: transform 0.3s ease;
+      padding: 2rem 1.2rem;
     }
-
-    form:hover {
-      transform: translateY(-3px);
-    }
-
     h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      font-weight: 700;
-      font-size: 1.5rem;
-      color: #ffffff;
+      font-size: 1.3rem;
     }
-
-    label {
-      display: block;
-      margin-bottom: 0.3rem;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.65rem;
-      margin-bottom: 1.2rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: white;
-      outline: none;
-      transition: background-color 0.3s ease;
-    }
-
-    input:focus {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      background-color: #3498db;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #2980b9;
-      transform: scale(1.02);
-    }
-
-    @media (max-width: 400px) {
-      form {
-        padding: 2rem 1.2rem;
-      }
-      h1 {
-        font-size: 1.3rem;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
   <form id="loginForm">
     <h1>Polizei Netzwerk BerlinRP</h1>
     <label for="username">Nutzername:</label>
     <input type="text" id="username" name="username" required autocomplete="off" />
-    <label for="password">Passwort:</label>
-    <input type="password" id="password" name="password" required autocomplete="off" />
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required autocomplete="off" />
     <button type="submit">Login</button>
   </form>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
   <script>
-    // Firebase Config & Init
-    const firebaseConfig = {
-      apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
-      authDomain: "copnet-berlinrp.firebaseapp.com",
-      projectId: "copnet-berlinrp",
-      storageBucket: "copnet-berlinrp.firebasestorage.app",
-      messagingSenderId: "325379817013",
-      appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
-      measurementId: "G-N7Z1C6XNJ0"
-    };
+    // Nutzerliste im Script (hartkodiert)
+    const users = [
+      { username: "Jonas Adler", email: "jonas.adler@copnet.de", role: "admin" },
+      { username: "Raphel Adler", email: "raphel.adler@copnet.de", role: "admin" },
+      { username: "Julian Adler", email: "julian.adler@copnet.de", role: "admin" },
+      { username: "Delta Adler", email: "delta.adler@copnet.de", role: "admin" },
+      { username: "Bundeswehr", email: "bundeswehr@copnet.de", role: "bundeswehr" }
+    ];
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-
-    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
       event.preventDefault();
 
+      // Werte aus Formular holen und bereinigen
       const usernameInput = document.getElementById("username").value.trim();
-      const passwordInput = document.getElementById("password").value.trim();
+      const emailInput = document.getElementById("email").value.trim().toLowerCase();
 
-      try {
-        const usersRef = db.collection("users");
-        const querySnapshot = await usersRef
-          .where("username", "==", usernameInput)
-          .where("password", "==", passwordInput)
-          .where("role", "==", "admin")
-          .get();
+      console.log("Eingegebener Nutzername:", usernameInput);
+      console.log("Eingegebene Email:", emailInput);
 
-        if (!querySnapshot.empty) {
-          const userDoc = querySnapshot.docs[0].data();
+      // Nutzer suchen
+      const foundUser = users.find(user => 
+        user.username === usernameInput && user.email.toLowerCase() === emailInput
+      );
 
-          alert("Login erfolgreich! Willkommen, " + userDoc.username);
+      if (foundUser) {
+        alert("Login erfolgreich! Willkommen, " + foundUser.username);
 
-          sessionStorage.setItem("username", userDoc.username);
-          sessionStorage.setItem("role", userDoc.role);
+        // Nutzerinfo speichern
+        sessionStorage.setItem("username", foundUser.username);
+        sessionStorage.setItem("role", foundUser.role);
 
-          window.location.href = "https://schnitzel973.github.io/CopNet-BerlinRP/dashboard.html";
-        } else {
-          alert("Ungültiger Nutzername oder Passwort oder kein Admin-Zugang!");
-          // Keine Weiterleitung!
-        }
-      } catch (error) {
-        console.error("Fehler beim Login:", error);
-        alert("Beim Login ist ein Fehler aufgetreten. Bitte versuche es später erneut.");
+        // Weiterleitung zur Dashboard-Seite
+      window.location.href = "https://schnitzel973.github.io/CopNet-BerlinRP/dashboard.html";
+      } else {
+        alert("Ungültiger Nutzername oder Email!");
       }
     });
   </script>
 
-  <footer style="position: absolute; bottom: 10px; width: 100%; text-align: center; color: rgba(255,255,255,0.6); font-size: 0.85rem;">
-    <span title="Created by schnitzel9734">© 2025 Polizei Netzwerk BerlinRP</span>
-  </footer>
+<footer style="position: absolute; bottom: 10px; width: 100%; text-align: center; color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+  <span title="Created by schnitzel9734">© 2025 Polizei Netzwerk BerlinRP</span>
+</footer>
+
 </body>
 </html>
