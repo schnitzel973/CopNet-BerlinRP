@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Polizei Netzwerk BerlinRP - Login</title>
 <style>
+  /* Dein bestehendes CSS bleibt 1:1 */
   * {
     box-sizing: border-box;
     margin: 0;
@@ -108,47 +109,60 @@
     <h1>Polizei Netzwerk BerlinRP</h1>
     <label for="username">Nutzername:</label>
     <input type="text" id="username" name="username" required autocomplete="off" />
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required autocomplete="off" />
+    <label for="password">Passwort:</label>
+    <input type="password" id="password" name="password" required autocomplete="off" />
     <button type="submit">Login</button>
   </form>
 
-  <script>
-    // Nutzerliste im Script (hartkodiert)
-    const users = [
-      { username: "Jonas Adler", email: "jonas.adler@copnet.de", role: "admin" },
-      { username: "Raphel Adler", email: "raphel.adler@copnet.de", role: "admin" },
-      { username: "Julian Adler", email: "julian.adler@copnet.de", role: "admin" },
-      { username: "Delta Adler", email: "delta.adler@copnet.de", role: "admin" },
-      { username: "Bundeswehr", email: "bundeswehr@copnet.de", role: "bundeswehr" }
-    ];
+  <!-- Firebase SDK (Modular v9) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
 
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
+    const firebaseConfig = {
+      apiKey: "DEIN_API_KEY",
+      authDomain: "DEINE_AUTH_DOMAIN",
+      projectId: "DEIN_PROJECT_ID",
+      storageBucket: "DEIN_STORAGE_BUCKET",
+      messagingSenderId: "DEINE_MESSAGING_SENDER_ID",
+      appId: "DEINE_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      // Werte aus Formular holen und bereinigen
       const usernameInput = document.getElementById("username").value.trim();
-      const emailInput = document.getElementById("email").value.trim().toLowerCase();
+      const passwordInput = document.getElementById("password").value.trim();
 
-      console.log("Eingegebener Nutzername:", usernameInput);
-      console.log("Eingegebene Email:", emailInput);
+      try {
+        const usersRef = collection(db, "users");
+        const q = query(
+          usersRef,
+          where("username", "==", usernameInput),
+          where("password", "==", passwordInput),
+          where("role", "==", "admin")
+        );
 
-      // Nutzer suchen
-      const foundUser = users.find(user => 
-        user.username === usernameInput && user.email.toLowerCase() === emailInput
-      );
+        const querySnapshot = await getDocs(q);
 
-      if (foundUser) {
-        alert("Login erfolgreich! Willkommen, " + foundUser.username);
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0].data();
 
-        // Nutzerinfo speichern
-        sessionStorage.setItem("username", foundUser.username);
-        sessionStorage.setItem("role", foundUser.role);
+          alert("Login erfolgreich! Willkommen, " + userDoc.username);
 
-        // Weiterleitung zur Dashboard-Seite
-      window.location.href = "https://schnitzel973.github.io/CopNet-BerlinRP/dashboard.html";
-      } else {
-        alert("Ungültiger Nutzername oder Email!");
+          sessionStorage.setItem("username", userDoc.username);
+          sessionStorage.setItem("role", userDoc.role);
+
+          window.location.href = "https://schnitzel973.github.io/CopNet-BerlinRP/dashboard.html";
+        } else {
+          alert("Ungültiger Nutzername oder Passwort oder kein Admin-Zugang!");
+        }
+      } catch (error) {
+        console.error("Fehler beim Login:", error);
+        alert("Beim Login ist ein Fehler aufgetreten. Bitte versuche es später erneut.");
       }
     });
   </script>
@@ -159,6 +173,3 @@
 
 </body>
 </html>
-
-
-
