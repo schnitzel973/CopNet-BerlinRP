@@ -698,30 +698,5 @@
   // Initial laden
   loadAkten();
 </script>
-
-<script>
-  // Rolle aus sessionStorage holen
-  const role = sessionStorage.getItem("role");
-
-  if (role === "bundeswehr") {
-    // Alle Bearbeiten- und Löschen-Buttons auswählen
-    const editButtons = document.querySelectorAll(".edit-btn");
-    const deleteButtons = document.querySelectorAll(".delete-btn");
-
-    // Buttons deaktivieren und optisch anpassen
-    editButtons.forEach(btn => {
-      btn.disabled = true;
-      btn.style.opacity = "0.5";
-      btn.title = "Keine Berechtigung";
-    });
-
-    deleteButtons.forEach(btn => {
-      btn.disabled = true;
-      btn.style.opacity = "0.5";
-      btn.title = "Keine Berechtigung";
-    });
-  }
-</script>
-
 </body>
 </html>
