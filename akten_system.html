@@ -628,68 +628,27 @@ const currentRole = sessionStorage.getItem("role") || "guest";
   }
 
   // Filter & Render Akten Liste
-function renderAktenListe() {
-  const filterName = filterNameInput.value.toLowerCase();
-  const filterErsteller = filterErstellerInput.value.toLowerCase();
+const btnLoeschen = document.createElement("button");
+btnLoeschen.textContent = "Löschen";
+btnLoeschen.style.backgroundColor = "#c0392b";
 
-  // Filter anwenden
-  let gefilterteAkten = aktenDaten.filter(akte => {
-    const nameCheck = (akte.vorname + " " + akte.nachname + " " + akte.titel).toLowerCase();
-    const erstellerCheck = (akte.ersteller || "").toLowerCase();
-    return nameCheck.includes(filterName) && erstellerCheck.includes(filterErsteller);
-  });
-
-  aktenContainer.innerHTML = "";
-  if (gefilterteAkten.length === 0) {
-    aktenContainer.innerHTML = "<i>Keine Akten gefunden.</i>";
-    return;
-  }
-
-  gefilterteAkten.forEach(akte => {
-    const div = document.createElement("div");
-    div.classList.add("akte-item");
-
-    const infoDiv = document.createElement("div");
-    infoDiv.classList.add("akte-info");
-    infoDiv.innerHTML = `<strong>${akte.titel}</strong> (ID: ${akte.id})<br>
-      Ersteller: ${akte.ersteller || "Unbekannt"}<br>
-      Name: ${akte.vorname || "-"} ${akte.nachname || "-"}<br>
-      Einträge: ${akte.eintraege.length}`;
-
-    const actionsDiv = document.createElement("div");
-    actionsDiv.classList.add("akte-actions");
-
-    const btnBearbeiten = document.createElement("button");
-    btnBearbeiten.textContent = "Bearbeiten";
-    btnBearbeiten.addEventListener("click", () => {
-      currentAkteId = akte.id;
-      showEditStep(akte);
-    });
-
-    const btnLoeschen = document.createElement("button");
-    btnLoeschen.textContent = "Löschen";
-    btnLoeschen.style.backgroundColor = "#c0392b";
-    btnLoeschen.addEventListener("click", async () => {
-      if (confirm(`Akte "${akte.titel}" wirklich löschen?`)) {
-        try {
-          await db.collection("akten").doc(akte.id).delete();
-          alert("Akte gelöscht.");
-          loadAkten();
-          if (currentAkteId === akte.id) resetForm();
-        } catch (error) {
-          console.error("Fehler beim Löschen:", error);
-          alert("Fehler beim Löschen der Akte.");
-        }
+if (currentRole !== "admin") {
+  btnLoeschen.disabled = true; // Button deaktivieren
+  btnLoeschen.title = "Nur Admins können Akten löschen.";
+  btnLoeschen.style.opacity = "0.5"; // Optional: optisch ausgegraut
+} else {
+  btnLoeschen.addEventListener("click", async () => {
+    if (confirm(`Akte "${akte.titel}" wirklich löschen?`)) {
+      try {
+        await db.collection("akten").doc(akte.id).delete();
+        alert("Akte gelöscht.");
+        loadAkten();
+        if (currentAkteId === akte.id) resetForm();
+      } catch (error) {
+        console.error("Fehler beim Löschen:", error);
+        alert("Fehler beim Löschen der Akte.");
       }
-    });
-
-    actionsDiv.appendChild(btnBearbeiten);
-    actionsDiv.appendChild(btnLoeschen);
-
-    div.appendChild(infoDiv);
-    div.appendChild(actionsDiv);
-
-    aktenContainer.appendChild(div);
+    }
   });
 }
 
