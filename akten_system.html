@@ -313,19 +313,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // Nutzerrolle aus sessionStorage lesen
-  const role = sessionStorage.getItem("role") || "user"; // default user
-
-  // Formular und Button referenz
-  const form = document.getElementById("fahndungsForm");
-  const submitBtn = document.getElementById("submitBtn");
-
-  // Formular für user deaktivieren (ausgrauen + button deaktivieren)
-  if (role !== "user") {
-    form.classList.add("disabled");
-    submitBtn.disabled = true;
-  }
-
   // Firebase Config & Init
   const firebaseConfig = {
     apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
