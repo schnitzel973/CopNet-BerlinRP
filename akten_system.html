@@ -313,347 +313,349 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config & Init
-const firebaseConfig = {
-  apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
-  authDomain: "copnet-berlinrp.firebaseapp.com",
-  projectId: "copnet-berlinrp",
-  storageBucket: "copnet-berlinrp.appspot.com",
-  messagingSenderId: "325379817013",
-  appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
-  measurementId: "G-N7Z1C6XNJ0"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// Dummy Benutzername (normalerweise aus Session / Auth)
-const currentUser = sessionStorage.getItem("username") || "Unbekannt";
-
-// Elemente
-const createStep = document.getElementById("createAkteStep");
-const editStep = document.getElementById("editAkteStep");
-const akteTitelInput = document.getElementById("akteTitel");
-const btnCreateAkte = document.getElementById("btnCreateAkte");
-const aktTitelAnzeigen = document.getElementById("aktTitelAnzeigen");
-const aktIdAnzeigen = document.getElementById("aktIdAnzeigen");
-
-const vornameInput = document.getElementById("vorname");
-const nachnameInput = document.getElementById("nachname");
-const geschlechtInput = document.getElementById("geschlecht");
-const geburtsdatumInput = document.getElementById("geburtsdatum");
-const telefonnummerInput = document.getElementById("telefonnummer");
-const groesseInput = document.getElementById("groesse");
-const augenfarbeInput = document.getElementById("augenfarbe");
-const haarfarbeInput = document.getElementById("haarfarbe");
-const sonstigesInput = document.getElementById("sonstiges");
-
-const eintragTypSelect = document.getElementById("eintragTyp");
-const straftatBereich = document.getElementById("straftatBereich");
-const straftatText = document.getElementById("straftatText");
-const vermerkBereich = document.getElementById("vermerkBereich");
-const vermerkText = document.getElementById("vermerkText");
-
-const fotoInput = document.getElementById("fotoInput");
-const photoPreview = document.getElementById("photoPreview");
-
-const btnAddEntry = document.getElementById("btnAddEntry");
-const btnFertig = document.getElementById("btnFertig");
-const btnAbbrechen = document.getElementById("btnAbbrechen");
-
-const logContainer = document.getElementById("logContainer");
-
-const filterNameInput = document.getElementById("filterName");
-const filterErstellerInput = document.getElementById("filterErsteller");
-
-const aktenContainer = document.getElementById("aktenContainer");
-
-let currentAkteId = null;
-let currentPhotoDataURL = null; // Foto Base64
-let aktenDaten = []; // Alle Akten aus Firestore
-
-// Helper: Random ID 1-10000
-function generateRandomId() {
-  return Math.floor(Math.random() * 10000) + 1;
-}
-
-// Bild Upload - Foto anzeigen als Vorschau & Base64 speichern
-fotoInput.addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    currentPhotoDataURL = e.target.result;
-    photoPreview.src = currentPhotoDataURL;
-    photoPreview.style.display = "block";
+  // Firebase Config & Init
+  const firebaseConfig = {
+    apiKey: "AIzaSyAE4nCkJkdR8P9EKyEILHF8CN4pbRUTrHM",
+    authDomain: "copnet-berlinrp.firebaseapp.com",
+    projectId: "copnet-berlinrp",
+    storageBucket: "copnet-berlinrp.appspot.com",
+    messagingSenderId: "325379817013",
+    appId: "1:325379817013:web:0367b33ce7373f1185bb7c",
+    measurementId: "G-N7Z1C6XNJ0"
   };
-  reader.readAsDataURL(file);
-});
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-// Dropdown Eintrag Typ
-eintragTypSelect.addEventListener("change", () => {
-  const val = eintragTypSelect.value;
-  straftatBereich.style.display = val === "straftat" ? "block" : "none";
-  vermerkBereich.style.display = val === "vermerk" ? "block" : "none";
-});
+  // Dummy Benutzername (normalerweise aus Session / Auth)
+  // Du kannst hier die Logik anpassen, wie du Usernamen bekommst.
+  const currentUser = sessionStorage.getItem("username") || "Unbekannt";
 
-// Akte anlegen
-btnCreateAkte.addEventListener("click", async () => {
-  const titel = akteTitelInput.value.trim();
-  if (!titel) {
-    alert("Bitte einen Titel eingeben.");
-    return;
-  }
-  // Neue ID vergeben und Akte in Firestore speichern
-  let newId = generateRandomId();
-  // Sicherstellen, dass die ID noch nicht vergeben ist:
-  while (aktenDaten.find(a => a.id === newId.toString())) {
-    newId = generateRandomId();
-  }
+  // Elemente
+  const createStep = document.getElementById("createAkteStep");
+  const editStep = document.getElementById("editAkteStep");
+  const akteTitelInput = document.getElementById("akteTitel");
+  const btnCreateAkte = document.getElementById("btnCreateAkte");
+  const aktTitelAnzeigen = document.getElementById("aktTitelAnzeigen");
+  const aktIdAnzeigen = document.getElementById("aktIdAnzeigen");
 
-  const neueAkte = {
-    id: newId.toString(),
-    titel,
-    ersteller: currentUser,
-    vorname: "",
-    nachname: "",
-    geschlecht: "",
-    geburtsdatum: "",
-    telefonnummer: "",
-    groesse: "",
-    augenfarbe: "",
-    haarfarbe: "",
-    sonstiges: "",
-    eintraege: [], // Straftaten/Vermerke
-    foto: null,
-    logs: [{
-      zeit: new Date().toISOString(),
-      user: currentUser,
-      aktion: "Akte erstellt"
-    }]
-  };
+  const vornameInput = document.getElementById("vorname");
+  const nachnameInput = document.getElementById("nachname");
+  const geschlechtInput = document.getElementById("geschlecht");
+  const geburtsdatumInput = document.getElementById("geburtsdatum");
+  const telefonnummerInput = document.getElementById("telefonnummer");
+  const groesseInput = document.getElementById("groesse");
+  const augenfarbeInput = document.getElementById("augenfarbe");
+  const haarfarbeInput = document.getElementById("haarfarbe");
+  const sonstigesInput = document.getElementById("sonstiges");
 
-  try {
-    await db.collection("akten").doc(neueAkte.id).set(neueAkte);
-    aktenDaten.push(neueAkte);
-    currentAkteId = neueAkte.id;
-    showEditStep(neueAkte);
-    akteTitelInput.value = "";
-    loadAkten(); // Aktualisieren
-    alert("Akte wurde erfolgreich angelegt.");
-  } catch (error) {
-    console.error("Fehler beim Anlegen der Akte:", error);
-    alert("Fehler beim Anlegen der Akte.");
-  }
-});
+  const eintragTypSelect = document.getElementById("eintragTyp");
+  const straftatBereich = document.getElementById("straftatBereich");
+  const straftatText = document.getElementById("straftatText");
+  const vermerkBereich = document.getElementById("vermerkBereich");
+  const vermerkText = document.getElementById("vermerkText");
 
-// Zeige erweiterten Bearbeitungsbereich
-function showEditStep(akte) {
-  createStep.style.display = "none";
-  editStep.style.display = "block";
-  aktTitelAnzeigen.textContent = akte.titel;
-  aktIdAnzeigen.textContent = akte.id;
+  const fotoInput = document.getElementById("fotoInput");
+  const photoPreview = document.getElementById("photoPreview");
 
-  vornameInput.value = akte.vorname || "";
-  nachnameInput.value = akte.nachname || "";
-  geschlechtInput.value = akte.geschlecht || "";
-  geburtsdatumInput.value = akte.geburtsdatum || "";
-  telefonnummerInput.value = akte.telefonnummer || "";
-  groesseInput.value = akte.groesse || "";
-  augenfarbeInput.value = akte.augenfarbe || "";
-  haarfarbeInput.value = akte.haarfarbe || "";
-  sonstigesInput.value = akte.sonstiges || "";
+  const btnAddEntry = document.getElementById("btnAddEntry");
+  const btnFertig = document.getElementById("btnFertig");
+  const btnAbbrechen = document.getElementById("btnAbbrechen");
 
-  if (akte.foto) {
-    photoPreview.src = akte.foto;
-    photoPreview.style.display = "block";
-    currentPhotoDataURL = akte.foto;
-  } else {
-    photoPreview.style.display = "none";
-    currentPhotoDataURL = null;
+  const logContainer = document.getElementById("logContainer");
+
+  const filterNameInput = document.getElementById("filterName");
+  const filterErstellerInput = document.getElementById("filterErsteller");
+
+  const aktenContainer = document.getElementById("aktenContainer");
+
+  let currentAkteId = null;
+  let currentPhotoDataURL = null; // Foto Base64
+  let aktenDaten = []; // Alle Akten aus Firestore
+
+  // Helper: Random ID 1-10000
+  function generateRandomId() {
+    return Math.floor(Math.random() * 10000) + 1;
   }
 
-  eintragTypSelect.value = "";
-  straftatBereich.style.display = "none";
-  vermerkBereich.style.display = "none";
-  straftatText.value = "";
-  vermerkText.value = "";
+  // Bild Upload - Foto anzeigen als Vorschau & Base64 speichern
+  fotoInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      currentPhotoDataURL = e.target.result;
+      photoPreview.src = currentPhotoDataURL;
+      photoPreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Dropdown Eintrag Typ
+  eintragTypSelect.addEventListener("change", () => {
+    const val = eintragTypSelect.value;
+    straftatBereich.style.display = val === "straftat" ? "block" : "none";
+    vermerkBereich.style.display = val === "vermerk" ? "block" : "none";
+  });
+
+  // Akte anlegen
+  btnCreateAkte.addEventListener("click", async () => {
+    const titel = akteTitelInput.value.trim();
+    if (!titel) {
+      alert("Bitte einen Titel eingeben.");
+      return;
+    }
+    // Neue ID vergeben und Akte in Firestore speichern
+    let newId = generateRandomId();
+    // Sicherstellen, dass die ID noch nicht vergeben ist:
+    while (aktenDaten.find(a => a.id === newId.toString())) {
+      newId = generateRandomId();
+    }
+
+    const neueAkte = {
+      id: newId.toString(),
+      titel,
+      ersteller: currentUser,
+      vorname: "",
+      nachname: "",
+      geschlecht: "",
+      geburtsdatum: "",
+      telefonnummer: "",
+      groesse: "",
+      augenfarbe: "",
+      haarfarbe: "",
+      sonstiges: "",
+      eintraege: [], // Straftaten/Vermerke
+      foto: null,
+      logs: [{
+        zeit: new Date().toISOString(),
+        user: currentUser,
+        aktion: "Akte erstellt"
+      }]
+    };
+
+    try {
+      await db.collection("akten").doc(neueAkte.id).set(neueAkte);
+      aktenDaten.push(neueAkte);
+      currentAkteId = neueAkte.id;
+      showEditStep(neueAkte);
+      akteTitelInput.value = "";
+      loadAkten(); // Aktualisieren
+      alert("Akte wurde erfolgreich angelegt.");
+    } catch (error) {
+      console.error("Fehler beim Anlegen der Akte:", error);
+      alert("Fehler beim Anlegen der Akte.");
+    }
+  });
+
+  // Zeige erweiterten Bearbeitungsbereich
+  function showEditStep(akte) {
+    createStep.style.display = "none";
+    editStep.style.display = "block";
+    aktTitelAnzeigen.textContent = akte.titel;
+    aktIdAnzeigen.textContent = akte.id;
+
+    vornameInput.value = akte.vorname || "";
+    nachnameInput.value = akte.nachname || "";
+    geschlechtInput.value = akte.geschlecht || "";
+    geburtsdatumInput.value = akte.geburtsdatum || "";
+    telefonnummerInput.value = akte.telefonnummer || "";
+    groesseInput.value = akte.groesse || "";
+    augenfarbeInput.value = akte.augenfarbe || "";
+    haarfarbeInput.value = akte.haarfarbe || "";
+    sonstigesInput.value = akte.sonstiges || "";
+
+    if (akte.foto) {
+      photoPreview.src = akte.foto;
+      photoPreview.style.display = "block";
+      currentPhotoDataURL = akte.foto;
+    } else {
+      photoPreview.style.display = "none";
+      currentPhotoDataURL = null;
+    }
+
+    eintragTypSelect.value = "";
+    straftatBereich.style.display = "none";
+    vermerkBereich.style.display = "none";
+    straftatText.value = "";
+    vermerkText.value = "";
+
+    // Logs anzeigen
+    renderLogs(akte.logs || []);
+  }
 
   // Logs anzeigen
-  renderLogs(akte.logs || []);
-}
-
-// Logs anzeigen
-function renderLogs(logs) {
-  logContainer.innerHTML = "";
-  if (!logs || logs.length === 0) {
-    logContainer.innerHTML = "<i>Keine Einträge vorhanden.</i>";
-    return;
-  }
-  logs.forEach(log => {
-    const div = document.createElement("div");
-    div.classList.add("log-entry");
-    const zeit = new Date(log.zeit).toLocaleString();
-    div.textContent = `${zeit} - ${log.user}: ${log.aktion}`;
-    logContainer.appendChild(div);
-  });
-}
-
-// Speichere Eintrag (Straftat / Vermerk + Akte Daten)
-btnAddEntry.addEventListener("click", async () => {
-  if (!currentAkteId) return;
-
-  const eintragTyp = eintragTypSelect.value;
-  if (!eintragTyp) {
-    alert("Bitte einen Eintrag-Typ auswählen.");
-    return;
-  }
-
-  let eintragText = "";
-  if (eintragTyp === "straftat") {
-    eintragText = straftatText.value.trim();
-    if (!eintragText) {
-      alert("Bitte eine Straftat-Beschreibung eingeben.");
+  function renderLogs(logs) {
+    logContainer.innerHTML = "";
+    if (!logs || logs.length === 0) {
+      logContainer.innerHTML = "<i>Keine Einträge vorhanden.</i>";
       return;
     }
-  } else if (eintragTyp === "vermerk") {
-    eintragText = vermerkText.value.trim();
-    if (!eintragText) {
-      alert("Bitte eine Vermerk-Beschreibung eingeben.");
+    logs.forEach(log => {
+      const div = document.createElement("div");
+      div.classList.add("log-entry");
+      const zeit = new Date(log.zeit).toLocaleString();
+      div.textContent = `${zeit} - ${log.user}: ${log.aktion}`;
+      logContainer.appendChild(div);
+    });
+  }
+
+  // Speichere Eintrag (Straftat / Vermerk + Akte Daten)
+  btnAddEntry.addEventListener("click", async () => {
+    if (!currentAkteId) return;
+
+    const eintragTyp = eintragTypSelect.value;
+    if (!eintragTyp) {
+      alert("Bitte einen Eintrag-Typ auswählen.");
       return;
     }
-  }
 
-  // Holen der aktuellen Akte
-  const docRef = db.collection("akten").doc(currentAkteId);
-  const docSnap = await docRef.get();
-  if (!docSnap.exists) {
-    alert("Die Akte existiert nicht mehr.");
-    return;
-  }
-  const akte = docSnap.data();
+    let eintragText = "";
+    if (eintragTyp === "straftat") {
+      eintragText = straftatText.value.trim();
+      if (!eintragText) {
+        alert("Bitte eine Straftat-Beschreibung eingeben.");
+        return;
+      }
+    } else if (eintragTyp === "vermerk") {
+      eintragText = vermerkText.value.trim();
+      if (!eintragText) {
+        alert("Bitte eine Vermerk-Beschreibung eingeben.");
+        return;
+      }
+    }
 
-  // Aktualisiere Akte mit aktuellen Feldern
-  akte.vorname = vornameInput.value.trim();
-  akte.nachname = nachnameInput.value.trim();
-  akte.geschlecht = geschlechtInput.value;
-  akte.geburtsdatum = geburtsdatumInput.value;
-  akte.telefonnummer = telefonnummerInput.value.trim();
-  akte.groesse = groesseInput.value;
-  akte.augenfarbe = augenfarbeInput.value.trim();
-  akte.haarfarbe = haarfarbeInput.value.trim();
-  akte.sonstiges = sonstigesInput.value.trim();
-  akte.foto = currentPhotoDataURL;
+    // Holen der aktuellen Akte
+    const docRef = db.collection("akten").doc(currentAkteId);
+    const docSnap = await docRef.get();
+    if (!docSnap.exists) {
+      alert("Die Akte existiert nicht mehr.");
+      return;
+    }
+    const akte = docSnap.data();
 
-  // Neuen Eintrag hinzufügen
-  akte.eintraege.push({
-    typ: eintragTyp,
-    text: eintragText,
-    zeit: new Date().toISOString(),
-    user: currentUser,
+    // Aktualisiere Akte mit aktuellen Feldern
+    akte.vorname = vornameInput.value.trim();
+    akte.nachname = nachnameInput.value.trim();
+    akte.geschlecht = geschlechtInput.value;
+    akte.geburtsdatum = geburtsdatumInput.value;
+    akte.telefonnummer = telefonnummerInput.value.trim();
+    akte.groesse = groesseInput.value;
+    akte.augenfarbe = augenfarbeInput.value.trim();
+    akte.haarfarbe = haarfarbeInput.value.trim();
+    akte.sonstiges = sonstigesInput.value.trim();
+    akte.foto = currentPhotoDataURL;
+
+    // Neuen Eintrag hinzufügen
+    akte.eintraege.push({
+      typ: eintragTyp,
+      text: eintragText,
+      zeit: new Date().toISOString(),
+      user: currentUser,
+    });
+
+    // Log hinzufügen
+    akte.logs = akte.logs || [];
+    akte.logs.push({
+      zeit: new Date().toISOString(),
+      user: currentUser,
+      aktion: `Eintrag (${eintragTyp}) hinzugefügt: ${eintragText.substring(0, 30)}${eintragText.length > 30 ? "..." : ""}`
+    });
+
+    try {
+      await docRef.set(akte);
+      alert("Eintrag wurde gespeichert.");
+      showEditStep(akte);
+      loadAkten();
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+      alert("Fehler beim Speichern der Akte.");
+    }
   });
 
-  // Log hinzufügen
-  akte.logs = akte.logs || [];
-  akte.logs.push({
-    zeit: new Date().toISOString(),
-    user: currentUser,
-    aktion: `Eintrag (${eintragTyp}) hinzugefügt: ${eintragText.substring(0, 30)}${eintragText.length > 30 ? "..." : ""}`
+  // Fertig Button - Zurück zum Anlegen + Liste laden
+  btnFertig.addEventListener("click", () => {
+    resetForm();
   });
 
-  try {
-    await docRef.set(akte);
-    alert("Eintrag wurde gespeichert.");
-    showEditStep(akte);
+  // Abbrechen Button - Zurück zum Anlegen + Liste laden
+  btnAbbrechen.addEventListener("click", () => {
+    resetForm();
+  });
+
+  // Reset & zurück zum Start
+  function resetForm() {
+    createStep.style.display = "block";
+    editStep.style.display = "none";
+    currentAkteId = null;
+    currentPhotoDataURL = null;
+
+    // Felder leeren
+    aktTitelAnzeigen.textContent = "";
+    aktIdAnzeigen.textContent = "";
+    akteTitelInput.value = "";
+
+    vornameInput.value = "";
+    nachnameInput.value = "";
+    geschlechtInput.value = "";
+    geburtsdatumInput.value = "";
+    telefonnummerInput.value = "";
+    groesseInput.value = "";
+    augenfarbeInput.value = "";
+    haarfarbeInput.value = "";
+    sonstigesInput.value = "";
+    eintragTypSelect.value = "";
+    straftatText.value = "";
+    vermerkText.value = "";
+    photoPreview.style.display = "none";
+    fotoInput.value = "";
+
+    logContainer.innerHTML = "";
+
     loadAkten();
-  } catch (error) {
-    console.error("Fehler beim Speichern:", error);
-    alert("Fehler beim Speichern der Akte.");
   }
-});
 
-// Fertig Button - Zurück zum Anlegen + Liste laden
-btnFertig.addEventListener("click", () => {
-  resetForm();
-});
-
-// Abbrechen Button - Zurück zum Anlegen + Liste laden
-btnAbbrechen.addEventListener("click", () => {
-  resetForm();
-});
-
-// Reset & zurück zum Start
-function resetForm() {
-  createStep.style.display = "block";
-  editStep.style.display = "none";
-  currentAkteId = null;
-  currentPhotoDataURL = null;
-
-  // Felder leeren
-  aktTitelAnzeigen.textContent = "";
-  aktIdAnzeigen.textContent = "";
-  akteTitelInput.value = "";
-
-  vornameInput.value = "";
-  nachnameInput.value = "";
-  geschlechtInput.value = "";
-  geburtsdatumInput.value = "";
-  telefonnummerInput.value = "";
-  groesseInput.value = "";
-  augenfarbeInput.value = "";
-  haarfarbeInput.value = "";
-  sonstigesInput.value = "";
-  eintragTypSelect.value = "";
-  straftatText.value = "";
-  vermerkText.value = "";
-  photoPreview.style.display = "none";
-  fotoInput.value = "";
-
-  logContainer.innerHTML = "";
-
-  loadAkten();
-}
-
-// Lade alle Akten aus Firestore und zeige sie in der Liste an
-async function loadAkten() {
-  try {
-    const snapshot = await db.collection("akten").get();
-    aktenDaten = snapshot.docs.map(doc => doc.data());
-    renderAktenListe();
-  } catch (error) {
-    console.error("Fehler beim Laden der Akten:", error);
+  // Lade alle Akten aus Firestore und zeige sie in der Liste an
+  async function loadAkten() {
+    try {
+      const snapshot = await db.collection("akten").get();
+      aktenDaten = snapshot.docs.map(doc => doc.data());
+      renderAktenListe();
+    } catch (error) {
+      console.error("Fehler beim Laden der Akten:", error);
+    }
   }
-}
 
-// Liste anzeigen mit Filtern
+  // Filter & Render Akten Liste
 function renderAktenListe() {
-  const nameFilter = filterNameInput.value.toLowerCase();
-  const erstellerFilter = filterErstellerInput.value.toLowerCase();
+  const filterName = filterNameInput.value.toLowerCase();
+  const filterErsteller = filterErstellerInput.value.toLowerCase();
+
+  // Filter anwenden
+  let gefilterteAkten = aktenDaten.filter(akte => {
+    const nameCheck = (akte.vorname + " " + akte.nachname + " " + akte.titel).toLowerCase();
+    const erstellerCheck = (akte.ersteller || "").toLowerCase();
+    return nameCheck.includes(filterName) && erstellerCheck.includes(filterErsteller);
+  });
 
   aktenContainer.innerHTML = "";
-
-  const gefilterteAkten = aktenDaten.filter(a => {
-    const nameMatch = (a.titel || "").toLowerCase().includes(nameFilter) ||
-      (a.vorname || "").toLowerCase().includes(nameFilter) ||
-      (a.nachname || "").toLowerCase().includes(nameFilter);
-
-    const erstellerMatch = (a.ersteller || "").toLowerCase().includes(erstellerFilter);
-
-    return nameMatch && erstellerMatch;
-  });
-
   if (gefilterteAkten.length === 0) {
-    aktenContainer.innerHTML = "<p>Keine Akten gefunden.</p>";
+    aktenContainer.innerHTML = "<i>Keine Akten gefunden.</i>";
     return;
   }
 
   gefilterteAkten.forEach(akte => {
     const div = document.createElement("div");
-    div.classList.add("akte-eintrag");
-    div.innerHTML = `
-      <b>${akte.titel}</b> (${akte.id})<br/>
-      Erstellt von: ${akte.ersteller}<br/>
-      Name: ${akte.vorname || ""} ${akte.nachname || ""}<br/>
-    `;
+    div.classList.add("akte-item");
+
+    const infoDiv = document.createElement("div");
+    infoDiv.classList.add("akte-info");
+    infoDiv.innerHTML = `<strong>${akte.titel}</strong> (ID: ${akte.id})<br>
+      Ersteller: ${akte.ersteller || "Unbekannt"}<br>
+      Name: ${akte.vorname || "-"} ${akte.nachname || "-"}<br>
+      Einträge: ${akte.eintraege.length}`;
+
+    const actionsDiv = document.createElement("div");
+    actionsDiv.classList.add("akte-actions");
 
     const btnBearbeiten = document.createElement("button");
     btnBearbeiten.textContent = "Bearbeiten";
@@ -661,44 +663,41 @@ function renderAktenListe() {
       currentAkteId = akte.id;
       showEditStep(akte);
     });
-    div.appendChild(btnBearbeiten);
 
     const btnLoeschen = document.createElement("button");
     btnLoeschen.textContent = "Löschen";
-
-    // Nur Admin darf löschen
-    if (currentRole !== "admin") {
-      btnLoeschen.disabled = true;
-      btnLoeschen.title = "Nur Admins können Akten löschen.";
-      btnLoeschen.style.opacity = "0.5";
-    } else {
-      btnLoeschen.addEventListener("click", async () => {
-        if (!confirm(`Akte "${akte.titel}" wirklich löschen?`)) return;
+    btnLoeschen.style.backgroundColor = "#c0392b";
+    btnLoeschen.addEventListener("click", async () => {
+      if (confirm(`Akte "${akte.titel}" wirklich löschen?`)) {
         try {
           await db.collection("akten").doc(akte.id).delete();
-          alert("Akte wurde gelöscht.");
+          alert("Akte gelöscht.");
           loadAkten();
-          resetForm();
+          if (currentAkteId === akte.id) resetForm();
         } catch (error) {
           console.error("Fehler beim Löschen:", error);
           alert("Fehler beim Löschen der Akte.");
         }
-      });
-    }
+      }
+    });
 
-    div.appendChild(btnLoeschen);
+    actionsDiv.appendChild(btnBearbeiten);
+    actionsDiv.appendChild(btnLoeschen);
+
+    div.appendChild(infoDiv);
+    div.appendChild(actionsDiv);
 
     aktenContainer.appendChild(div);
   });
 }
 
-// Filter Eingaben - Liste bei Änderung neu rendern
-filterNameInput.addEventListener("input", renderAktenListe);
-filterErstellerInput.addEventListener("input", renderAktenListe);
 
-// Initial laden
-loadAkten();
+  // Filter-Input Events
+  filterNameInput.addEventListener("input", renderAktenListe);
+  filterErstellerInput.addEventListener("input", renderAktenListe);
 
+  // Initial laden
+  loadAkten();
 </script>
 </body>
 </html>
