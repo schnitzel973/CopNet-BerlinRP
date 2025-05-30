@@ -698,5 +698,23 @@
   // Initial laden
   loadAkten();
 </script>
+
+<script>
+  const role = sessionStorage.getItem("role");
+
+  if (!role) {
+    // Falls jemand nicht eingeloggt ist → zurück zur Login-Seite
+    window.location.href = "login.html";
+  }
+
+  if (role === "bundeswehr") {
+    // Wenn Bundeswehr → Buttons ausblenden
+    document.addEventListener("DOMContentLoaded", () => {
+      const restrictedButtons = document.querySelectorAll(".edit, .delete");
+      restrictedButtons.forEach(btn => btn.style.display = "none");
+    });
+  }
+</script>
+
 </body>
 </html>
