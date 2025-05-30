@@ -614,6 +614,33 @@
     loadAkten();
   }
 
+//Bundeswehr keine Bearbeitungsrechte//
+const btnBearbeiten = document.createElement("button");
+btnBearbeiten.textContent = "Bearbeiten";
+btnBearbeiten.addEventListener("click", () => {
+  currentAkteId = akte.id;
+  showEditStep(akte);
+});
+
+const btnLoeschen = document.createElement("button");
+btnLoeschen.textContent = "Löschen";
+btnLoeschen.style.backgroundColor = "#c0392b";
+btnLoeschen.addEventListener("click", async () => {
+  if (confirm(`Akte "${akte.titel}" wirklich löschen?`)) {
+    try {
+      await db.collection("akten").doc(akte.id).delete();
+      alert("Akte gelöscht.");
+      loadAkten();
+      if (currentAkteId === akte.id) resetForm();
+    } catch (error) {
+      console.error("Fehler beim Löschen:", error);
+      alert("Fehler beim Löschen der Akte.");
+    }
+  }
+});
+actionsDiv.appendChild(btnBearbeiten);
+actionsDiv.appendChild(btnLoeschen);
+
   // Lade alle Akten aus Firestore und zeige sie in der Liste an
   async function loadAkten() {
     try {
